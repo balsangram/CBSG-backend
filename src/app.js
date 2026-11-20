@@ -22,7 +22,16 @@ app.use(corsConfig);
 // Rate limiter
 app.use(rateLimitMiddleware);
 
-// Health check
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     success: true,

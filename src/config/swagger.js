@@ -1,19 +1,20 @@
 import swaggerJsdoc from "swagger-jsdoc";
+import env from "./env.js";
 
 const options = {
   definition: {
     openapi: "3.0.0",
 
     info: {
-      title: "Modular Monolith API",
+      title: "CBSG API",
       version: "1.0.0",
-      description: "Backend API Documentation",
+      description: "CBSG backend API documentation",
     },
 
     servers: [
       {
-        url: "http://localhost:5000/api/v1",
-        description: "Local Development Server",
+        url: `http://localhost:${env.PORT}/api/v1`,
+        description: "Local development server",
       },
     ],
 
@@ -25,10 +26,19 @@ const options = {
           bearerFormat: "JWT",
         },
       },
+      schemas: {
+        ErrorResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: false },
+            message: { type: "string" },
+          },
+        },
+      },
     },
   },
 
-  apis: ["./src/modules/**/*.routes.js"],
+  apis: ["./src/modules/**/*.routes.js", "./src/app.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

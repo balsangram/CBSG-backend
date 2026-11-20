@@ -37,7 +37,113 @@ const validateUpdate = (req, res, next) => {
 
 router.use(authMiddleware, agentOnly);
 
+/**
+ * @swagger
+ * /agent/customers:
+ *   get:
+ *     summary: List customers
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Customer list
+ *   post:
+ *     summary: Create a customer
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [name, phone]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               joiningDate:
+ *                 type: string
+ *                 format: date-time
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Customer created
+ */
 router.get("/customers", getCustomers);
+/**
+ * @swagger
+ * /agent/customers/{id}:
+ *   get:
+ *     summary: Get a customer
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer
+ *       404:
+ *         description: Customer not found
+ *   patch:
+ *     summary: Update a customer
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               joiningDate:
+ *                 type: string
+ *                 format: date-time
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Customer updated
+ *   delete:
+ *     summary: Delete a customer
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer deleted
+ */
 router.get("/customers/:id", getCustomerById);
 router.post(
   "/customers",
