@@ -14,14 +14,15 @@ const startServer = async () => {
       await runSeeders();
     }
 
-    // 3. Start Express server
-    const server = app.listen(env.PORT, () => {
+    // Render injects PORT and reaches the process on 0.0.0.0.
+    const port = Number(process.env.PORT) || env.PORT;
+    const server = app.listen(port, "0.0.0.0", () => {
       console.log("-----------------------------------");
       console.log(`${env.APP_NAME} Server Started`);
       console.log(`Environment : ${env.NODE_ENV}`);
-      console.log(`Port        : ${env.PORT}`);
-      console.log(`API URL     : http://localhost:${env.PORT}/api/v1`);
-      console.log(`Swagger     : http://localhost:${env.PORT}/api-docs`);
+      console.log(`Port        : ${port}`);
+      console.log(`API URL     : http://localhost:${port}/api/v1`);
+      console.log(`Swagger     : http://localhost:${port}/api-docs`);
       console.log("-----------------------------------");
     });
 

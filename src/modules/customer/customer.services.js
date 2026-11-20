@@ -26,6 +26,43 @@ const handleDuplicate = (error) => {
   throw httpError(409, "Phone number already exists");
 };
 
+const FILE_FIELDS = [
+  { input: "photo", key: "photo", folder: "customers" },
+  { input: "aadharDocument", key: "aadharDocument", folder: "customers/aadhar" },
+  { input: "panDocument", key: "panDocument", folder: "customers/pan" },
+];
+
+const uploadDocuments = async (files = {}) => {
+  const saved = {};
+  const urls = [];
+
+  try {
+    for (const field of FILE_FIELDS) {
+      const file = files[field.input]?.[0];
+      if (!file) continue;
+
+      const url = await uploadToS3(file, field.folder);
+      saved[field.key] = url;
+      urls.push(url);
+    }
+
+    return saved;
+  } catch (error) {
+    await Promise.all(urls.map((url) => deleteFromS3(url)));
+    throw error;
+  }
+};
+
+const deleteFiles = (urls) => {
+  return Promise.all(urls.filter(Boolean).map((url) => deleteFromS3(url)));
+};
+
+const blankToNull = (data, keys) => {
+  for (const key of keys) {
+    if (data[key] === "") data[key] = null;
+  }
+};
+
 const getCustomers = async () => {
   const customers = await findAll();
   return toCustomerListDto(customers);
@@ -43,26 +80,38 @@ const getCustomerById = async (id) => {
   return toCustomerDto(customer);
 };
 
-const createCustomer = async (data, file) => {
-  const photo = file ? await uploadToS3(file, "customers") : data.photo || null;
+const createCustomer = async (data, files) => {
+  const uploads = await uploadDocuments(files);
+  blankToNull(data, [
+    "email",
+    "photo",
+    "fathersName",
+    "dob",
+    "pinCode",
+    "aadhar",
+    "pan",
+    "bankName",
+    "accountNumber",
+    "ifscCode",
+  ]);
 
   try {
     const customer = await create({
       ...data,
       email: data.email || null,
-      photo,
+      photo: uploads.photo || data.photo || null,
+      aadharDocument: uploads.aadharDocument || null,
+      panDocument: uploads.panDocument || null,
     });
 
     return toCustomerDto(customer);
   } catch (error) {
-    if (file && photo) {
-      await deleteFromS3(photo);
-    }
+    await deleteFiles(Object.values(uploads));
     handleDuplicate(error);
   }
 };
 
-const updateCustomer = async (id, data, file) => {
+const updateCustomer = async (id, data, files) => {
   assertId(id);
 
   const customer = await findById(id);
@@ -71,23 +120,38 @@ const updateCustomer = async (id, data, file) => {
     throw httpError(404, "Customer not found");
   }
 
-  const photo = file ? await uploadToS3(file, "customers") : undefined;
+  const uploads = await uploadDocuments(files);
+  blankToNull(data, [
+    "email",
+    "photo",
+    "fathersName",
+    "dob",
+    "pinCode",
+    "aadhar",
+    "pan",
+    "bankName",
+    "accountNumber",
+    "ifscCode",
+  ]);
 
-  if (photo) data.photo = photo;
-  if (data.email === "") data.email = null;
+  if (!customer.isFistTime) {
+    data.isFistTime = true;
+  }
+
+  const replaced = [];
+
+  for (const field of FILE_FIELDS) {
+    if (!uploads[field.key]) continue;
+    if (customer[field.key]) replaced.push(customer[field.key]);
+    data[field.key] = uploads[field.key];
+  }
 
   try {
     const updated = await updateById(id, data);
-
-    if (photo && customer.photo) {
-      await deleteFromS3(customer.photo);
-    }
-
+    await deleteFiles(replaced);
     return toCustomerDto(updated);
   } catch (error) {
-    if (photo) {
-      await deleteFromS3(photo);
-    }
+    await deleteFiles(Object.values(uploads));
     handleDuplicate(error);
   }
 };
@@ -101,9 +165,11 @@ const deleteCustomer = async (id) => {
     throw httpError(404, "Customer not found");
   }
 
-  if (customer.photo) {
-    await deleteFromS3(customer.photo);
-  }
+  await deleteFiles([
+    customer.photo,
+    customer.aadharDocument,
+    customer.panDocument,
+  ]);
 
   return toCustomerDto(customer);
 };

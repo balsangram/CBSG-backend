@@ -19,12 +19,12 @@ const getCustomerById = asyncHandler(async (req, res) => {
 });
 
 const createCustomer = asyncHandler(async (req, res) => {
-  const data = await createCustomerService(req.body, req.file);
+  const data = await createCustomerService(req.body, req.files);
   return apiResponse(res, 201, "Customer created successfully", data);
 });
 
 const updateCustomer = asyncHandler(async (req, res) => {
-  const data = await updateCustomerService(req.params.id, req.body, req.file);
+  const data = await updateCustomerService(req.params.id, req.body, req.files);
   return apiResponse(res, 200, "Customer updated successfully", data);
 });
 

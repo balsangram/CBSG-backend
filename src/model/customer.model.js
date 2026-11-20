@@ -34,6 +34,68 @@ const customerSchema = new mongoose.Schema(
             default: Date.now,
         },
 
+        // additional information ============================================
+
+        fathersName: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        dob: {
+            type: Date,
+            default: null,
+        },
+        address: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+
+        pinCode: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        aadhar: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        aadharDocument: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        pan: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        panDocument: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        bankName: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        accountNumber: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        ifscCode: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        isFistTime: {
+            type: Boolean,
+            default: false,
+        },
+        
         refreshToken: {
             type: [{ type: String, trim: true }],
             default: [],

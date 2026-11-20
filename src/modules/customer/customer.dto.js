@@ -5,8 +5,6 @@ const toCustomerDto = (customer) => ({
   phone: customer.phone,
   photo: customer.photo || null,
   joiningDate: customer.joiningDate,
-  createdAt: customer.createdAt,
-  updatedAt: customer.updatedAt,
 });
 
 const toCustomerListDto = (customers) => customers.map(toCustomerDto);

@@ -45,5 +45,31 @@ const imageUpload = multer({
   },
 });
 
-export { imageUpload };
+const customerFileFilter = (req, file, cb) => {
+  const imageTypes = ["image/jpeg", "image/png", "image/webp"];
+  const documentTypes = [...imageTypes, "application/pdf"];
+  const allowed = file.fieldname === "photo" ? imageTypes : documentTypes;
+
+  if (!allowed.includes(file.mimetype)) {
+    const error = new Error(
+      file.fieldname === "photo"
+        ? "Photo must be a jpeg, png, or webp image"
+        : "Aadhaar and PAN must be a jpeg, png, webp, or pdf file"
+    );
+    error.statusCode = 400;
+    return cb(error);
+  }
+
+  cb(null, true);
+};
+
+const customerUpload = multer({
+  storage,
+  fileFilter: customerFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+});
+
+export { customerUpload, imageUpload };
 export default uploadMiddleware;

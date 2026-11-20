@@ -22,6 +22,17 @@ app.use(corsConfig);
 // Rate limiter
 app.use(rateLimitMiddleware);
 
+const health = (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "CBSG API is running",
+    timestamp: new Date().toISOString(),
+  });
+};
+
+app.get("/", health);
+app.get("/health", health);
+
 /**
  * @swagger
  * /health:
@@ -32,13 +43,7 @@ app.use(rateLimitMiddleware);
  *       200:
  *         description: API is running
  */
-app.get("/api/v1/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "CBSG API is running",
-    timestamp: new Date().toISOString(),
-  });
-});
+app.get("/api/v1/health", health);
 
 // Swagger documentation
 app.use(
