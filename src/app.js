@@ -4,7 +4,7 @@ import swaggerUi from "swagger-ui-express";
 
 import corsConfig from "./config/cors.js";
 import swaggerSpec from "./config/swagger.js";
-import routes from "./routes/index.js";
+import routes from "./routes/index.routes.js";
 
 import rateLimitMiddleware from "./middlewares/rateLimit.middleware.js";
 import notFoundMiddleware from "./middlewares/notFound.middleware.js";
