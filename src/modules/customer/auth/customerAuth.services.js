@@ -62,7 +62,7 @@ const verifyOtp = async (account, otp, id) => {
   await deleteOtps(account._id);
 };
 
-const createSession = async (account, role) => {
+const createSession = async (account, role, fcmToken) => {
   const payload = {
     id: account._id.toString(),
     role,
@@ -72,13 +72,13 @@ const createSession = async (account, role) => {
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  await saveRefreshToken(account._id, refreshToken);
+  await saveRefreshToken(account._id, refreshToken, fcmToken);
 
   return toSessionDto(accessToken, refreshToken, account, role);
 };
 
-const customerSendOtp = async ({ phoneNo }) => {
-  const customer = await findByPhone(phoneNo);
+const customerSendOtp = async ({ phone }) => {
+  const customer = await findByPhone(phone);
 
   if (!customer) {
     throw httpError(404, "Customer not found");
@@ -87,8 +87,8 @@ const customerSendOtp = async ({ phoneNo }) => {
   return issueOtp(customer);
 };
 
-const customerVerifyOtp = async ({ phoneNo, otp, id }) => {
-  const customer = await findByPhone(phoneNo);
+const customerVerifyOtp = async ({ phone, otp, id, fcmToken }) => {
+  const customer = await findByPhone(phone);
 
   if (!customer) {
     throw httpError(404, "Customer not found");
@@ -96,7 +96,7 @@ const customerVerifyOtp = async ({ phoneNo, otp, id }) => {
 
   await verifyOtp(customer, otp, id);
 
-  return createSession(customer, "customer");
+  return createSession(customer, "customer", fcmToken);
 };
 
 export { customerSendOtp, customerVerifyOtp };

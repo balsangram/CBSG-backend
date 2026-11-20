@@ -27,7 +27,7 @@ const adminSchema = new mongoose.Schema(
         },
 
         // Phone Number
-        phoneNo: {
+        phone: {
             type: String,
             required: [true, "Phone number is required"],
             unique: true,
@@ -52,8 +52,8 @@ const adminSchema = new mongoose.Schema(
 
         // Refresh Token
         refreshToken: {
-            type: String,
-            default: null,
+            type: [{ type: String, trim: true }],
+            default: [],
             select: false,
         },
 
@@ -67,9 +67,8 @@ const adminSchema = new mongoose.Schema(
 
         // Firebase Cloud Messaging Token
         fcmToken: {
-            type: String,
-            default: null,
-            trim: true,
+            type: [{ type: String, trim: true }],
+            default: [],
         },
 
         // Account Status

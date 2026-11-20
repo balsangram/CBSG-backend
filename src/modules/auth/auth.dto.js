@@ -1,11 +1,16 @@
-const toUserDto = (account, role) => ({
-    id: account._id,
-    name: account.name,
-    email: account.email || null,
-    phoneNo: account.phoneNo,
-    role,
-    photo: account.photo || null,
-});
+const toUserDto = (account, role) => {
+    const dto = {
+        id: account._id,
+        name: account.name,
+        email: account.email || null,
+        role,
+        photo: account.photo || null,
+    };
+
+    if (account.phone) dto.phone = account.phone;
+
+    return dto;
+};
 
 const toOtpDto = (otpDoc, account) => {
     const dto = {
@@ -17,7 +22,13 @@ const toOtpDto = (otpDoc, account) => {
         return dto;
     }
 
-    dto.phoneNo = account.phoneNo;
+    if (otpDoc.accountModel === "Agent") {
+        dto.phone = account.phone;
+        dto.role = account.role;
+        return dto;
+    }
+
+    dto.phone = account.phone;
     return dto;
 };
 

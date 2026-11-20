@@ -1,9 +1,10 @@
 import Agent from "../../../model/agent.model.js";
 import OTP from "../../../model/otp.model.js";
+import { sessionTokenUpdate } from "../../../utils/sessionTokens.js";
 
 const ACCOUNT_MODEL = "Agent";
 
-const findByPhone = (phoneNo) => Agent.findOne({ phoneNo });
+const findByPhone = (phone, role) => Agent.findOne(role ? { phone, role } : { phone });
 
 const replaceOtp = async ({ accountId, otp, expiresAt }) => {
   await OTP.deleteMany({ accountId, accountModel: ACCOUNT_MODEL });
@@ -31,8 +32,12 @@ const deleteOtps = (accountId) => {
   return OTP.deleteMany({ accountId, accountModel: ACCOUNT_MODEL });
 };
 
-const saveRefreshToken = (accountId, refreshToken) => {
-  return Agent.findByIdAndUpdate(accountId, { refreshToken });
+const saveRefreshToken = (accountId, refreshToken, fcmToken) => {
+  return Agent.findByIdAndUpdate(
+    accountId,
+    sessionTokenUpdate(refreshToken, fcmToken),
+    { updatePipeline: true }
+  );
 };
 
 export {

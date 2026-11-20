@@ -25,4 +25,25 @@ const uploadMiddleware = multer({
   },
 });
 
+const imageFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    const error = new Error("Photo must be a jpeg, png, or webp image");
+    error.statusCode = 400;
+    return cb(error);
+  }
+
+  cb(null, true);
+};
+
+const imageUpload = multer({
+  storage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+});
+
+export { imageUpload };
 export default uploadMiddleware;

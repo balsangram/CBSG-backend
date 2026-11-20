@@ -1,5 +1,6 @@
 import Admin from "../../../model/admin.model.js";
 import OTP from "../../../model/otp.model.js";
+import { sessionTokenUpdate } from "../../../utils/sessionTokens.js";
 
 const ACCOUNT_MODEL = "Admin";
 
@@ -31,8 +32,12 @@ const deleteOtps = (accountId) => {
   return OTP.deleteMany({ accountId, accountModel: ACCOUNT_MODEL });
 };
 
-const saveRefreshToken = (accountId, refreshToken) => {
-  return Admin.findByIdAndUpdate(accountId, { refreshToken });
+const saveRefreshToken = (accountId, refreshToken, fcmToken) => {
+  return Admin.findByIdAndUpdate(
+    accountId,
+    sessionTokenUpdate(refreshToken, fcmToken),
+    { updatePipeline: true }
+  );
 };
 
 export {

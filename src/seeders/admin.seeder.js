@@ -16,7 +16,7 @@ const adminSeeder = async () => {
     await Admin.create({
       name: env.ADMIN_NAME,
       email: env.ADMIN_EMAIL,
-      phoneNo: env.ADMIN_MOBILE,
+      phone: env.ADMIN_MOBILE,
       password: env.ADMIN_PASSWORD,
       role: "admin",
     });

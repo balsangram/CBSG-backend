@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const phoneNo = Joi.string()
+const phone = Joi.string()
   .trim()
   .pattern(/^[6-9]\d{9}$/)
   .required()
@@ -39,11 +39,21 @@ const password = Joi.string().min(8).required().messages({
   "any.required": "Password is required",
 });
 
-export const customerSendOtpSchema = Joi.object({ phoneNo });
-export const customerVerifyOtpSchema = Joi.object({ phoneNo, otp, id });
+const fcmToken = Joi.string().trim().allow("", null).optional();
 
-export const agentSendOtpSchema = Joi.object({ phoneNo });
-export const agentVerifyOtpSchema = Joi.object({ phoneNo, otp, id });
+const agentRole = Joi.string()
+  .valid("executive_manager", "team_lead")
+  .required()
+  .messages({
+    "any.only": "Role must be executive_manager or team_lead",
+    "any.required": "Role is required",
+  });
+
+export const customerSendOtpSchema = Joi.object({ phone });
+export const customerVerifyOtpSchema = Joi.object({ phone, otp, id, fcmToken });
+
+export const agentSendOtpSchema = Joi.object({ phone, role: agentRole });
+export const agentVerifyOtpSchema = Joi.object({ phone, otp, id, fcmToken });
 
 export const adminLoginSchema = Joi.object({ email, password });
-export const adminVerifyOtpSchema = Joi.object({ email, otp, id });
+export const adminVerifyOtpSchema = Joi.object({ email, otp, id, fcmToken });

@@ -68,7 +68,7 @@ const verifyOtp = async (account, otp, id) => {
   await deleteOtps(account._id);
 };
 
-const createSession = async (account) => {
+const createSession = async (account, fcmToken) => {
   const payload = {
     id: account._id.toString(),
     role: account.role,
@@ -78,7 +78,7 @@ const createSession = async (account) => {
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  await saveRefreshToken(account._id, refreshToken);
+  await saveRefreshToken(account._id, refreshToken, fcmToken);
 
   return toSessionDto(accessToken, refreshToken, account, account.role);
 };
@@ -101,7 +101,7 @@ const adminLogin = async ({ email, password }) => {
   return issueOtp(admin);
 };
 
-const adminVerifyOtp = async ({ email, otp, id }) => {
+const adminVerifyOtp = async ({ email, otp, id, fcmToken }) => {
   const admin = await findByEmail(email);
 
   if (!admin) {
@@ -111,7 +111,7 @@ const adminVerifyOtp = async ({ email, otp, id }) => {
   assertActive(admin);
   await verifyOtp(admin, otp, id);
 
-  return createSession(admin);
+  return createSession(admin, fcmToken);
 };
 
 export { adminLogin, adminVerifyOtp };

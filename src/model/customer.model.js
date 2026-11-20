@@ -22,7 +22,7 @@ const customerSchema = new mongoose.Schema(
             trim: true,
         },
 
-        phoneNo: {
+        phone: {
             type: String,
             required: [true, "Phone number is required"],
             unique: true,
@@ -35,15 +35,14 @@ const customerSchema = new mongoose.Schema(
         },
 
         refreshToken: {
-            type: String,
-            default: null,
+            type: [{ type: String, trim: true }],
+            default: [],
             select: false,
         },
 
         fcmToken: {
-            type: String,
-            default: null,
-            trim: true,
+            type: [{ type: String, trim: true }],
+            default: [],
         },
     },
     {

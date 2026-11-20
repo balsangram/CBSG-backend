@@ -27,7 +27,7 @@ const agentSchema = new mongoose.Schema(
         },
 
         // Phone Number
-        phoneNo: {
+        phone: {
             type: String,
             required: [true, "Phone number is required"],
             unique: true,
@@ -39,7 +39,7 @@ const agentSchema = new mongoose.Schema(
         role: {
             type: String,
             enum: ["executive_manager", "team_lead"],
-            default: "team_lead",
+            default: "executive_manager",
             required: true,
         },
 
@@ -59,16 +59,15 @@ const agentSchema = new mongoose.Schema(
 
         // Refresh Token
         refreshToken: {
-            type: String,
-            default: null,
+            type: [{ type: String, trim: true }],
+            default: [],
             select: false,
         },
 
         // Firebase Cloud Messaging Token
         fcmToken: {
-            type: String,
-            default: null,
-            trim: true,
+            type: [{ type: String, trim: true }],
+            default: [],
         },
 
         // Account Status
