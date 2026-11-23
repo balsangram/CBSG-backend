@@ -1,0 +1,103 @@
+{
+  "info": {
+    "name": "CBSG Admin - Plans",
+    "description": "Admin plan management APIs. All routes require a Bearer token from admin login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{adminToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7080/api/v1"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "planId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Get All Plans",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/admin/plans",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "plans"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Plan",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schemeName\": \"Monthly Savings Plan\",\n  \"planType\": \"Saving\",\n  \"minimumInvestmentAmount\": 1000,\n  \"payout\": 12,\n  \"monthlyInterest\": 1.5,\n  \"monthlyInterestDate\": \"2026-12-05T00:00:00.000Z\",\n  \"planRules\": [\n    {\n      \"ruleName\": \"Lock-in\",\n      \"description\": \"Amount stays invested for 12 months\"\n    }\n  ],\n  \"status\": \"PUBLISHED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/plans",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "plans"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Plan By Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/admin/plans/{{planId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "plans", "{{planId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Plan",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monthlyInterest\": 2.0,\n  \"status\": \"DRAFT\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/plans/{{planId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "plans", "{{planId}}"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

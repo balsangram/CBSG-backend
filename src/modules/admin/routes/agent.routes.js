@@ -72,7 +72,7 @@ router.use(authMiddleware, adminOnly);
  *       201:
  *         description: Agent created
  */
-router.get("/agents", getAllAgents);
+router.get("/", getAllAgents);
 /**
  * @swagger
  * /admin/agents/{id}:
@@ -144,19 +144,19 @@ router.get("/agents", getAllAgents);
  *       200:
  *         description: Agent deleted
  */
-router.get("/agents/:id", getAgentById);
+router.get("/:id", getAgentById);
 router.post(
-  "/agents",
+  "/",
   imageUpload.single("photo"),
   validateMiddleware(createAgentSchema),
   createAgent
 );
 router.patch(
-  "/agents/:id",
+  "/:id",
   imageUpload.single("photo"),
   validateUpdate,
   updateAgent
 );
-router.delete("/agents/:id", deleteAgent);
+router.delete("/:id", deleteAgent);
 
 export default router;

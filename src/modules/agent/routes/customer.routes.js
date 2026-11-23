@@ -112,7 +112,7 @@ router.use(authMiddleware, agentOnly);
  *       201:
  *         description: Customer created
  */
-router.get("/customers", getCustomers);
+router.get("/", getCustomers);
 /**
  * @swagger
  * /agent/customers/{id}:
@@ -204,19 +204,19 @@ router.get("/customers", getCustomers);
  *       200:
  *         description: Customer deleted
  */
-router.get("/customers/:id", getCustomerById);
+router.get("/:id", getCustomerById);
 router.post(
-  "/customers",
+  "/",
   customerFiles,
   validateMiddleware(createCustomerSchema),
   createCustomer
 );
 router.patch(
-  "/customers/:id",
+  "/:id",
   customerFiles,
   validateUpdate,
   updateCustomer
 );
-router.delete("/customers/:id", deleteCustomer);
+router.delete("/:id", deleteCustomer);
 
 export default router;

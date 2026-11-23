@@ -11,6 +11,7 @@ const toPlanDto = (plan) => ({
     description: rule.description,
   })),
   isActive: plan.isActive,
+  status: plan.status,
 });
 
 const toPlanListDto = (plans) => ({

@@ -3,6 +3,7 @@ import customerRoutes from "./customer.routes.js";
 
 const router = express.Router();
 
-router.use(customerRoutes);
+// router.use(customerRoutes);
+router.use("/customers", customerRoutes);
 
 export default router;
