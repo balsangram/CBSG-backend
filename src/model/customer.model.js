@@ -29,6 +29,13 @@ const customerSchema = new mongoose.Schema(
             trim: true,
         },
 
+        agentId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Agent",
+            required: [true, "Agent is required"],
+            index: true,
+        },
+
         joiningDate: {
             type: Date,
             default: Date.now,

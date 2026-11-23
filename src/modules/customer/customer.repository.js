@@ -1,6 +1,13 @@
 import Customer from "../../model/customer.model.js";
 
-const findAll = () => Customer.find().sort({ createdAt: -1 });
+const findPage = (page, limit) => {
+  const skip = (page - 1) * limit;
+
+  return Promise.all([
+    Customer.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Customer.countDocuments(),
+  ]);
+};
 
 const findById = (id) => Customer.findById(id);
 
@@ -15,4 +22,4 @@ const updateById = (id, data) => {
 
 const deleteById = (id) => Customer.findByIdAndDelete(id);
 
-export { findAll, findById, create, updateById, deleteById };
+export { findPage, findById, create, updateById, deleteById };

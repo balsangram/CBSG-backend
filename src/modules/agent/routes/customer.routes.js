@@ -52,14 +52,51 @@ router.use(authMiddleware, agentOnly);
  * /agent/customers:
  *   get:
  *     summary: List customers
+ *     description: Returns customers newest first. page defaults to 1 and limit defaults to 10, with a maximum of 50.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
  *     responses:
  *       200:
- *         description: Customer list
+ *         description: Customer page
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 success: true
+ *                 message: Customers fetched successfully
+ *                 data:
+ *                   customers:
+ *                     - id: 6741a0c2e1b2c3d4e5f60710
+ *                       name: Asha Patel
+ *                       email: asha@example.com
+ *                       phone: "9876543210"
+ *                       photo: null
+ *                       agentId: 6741a0c2e1b2c3d4e5f60711
+ *                       joiningDate: 2026-01-15T00:00:00.000Z
+ *                   pagination:
+ *                     page: 1
+ *                     limit: 10
+ *                     total: 24
+ *                     totalPages: 3
  *   post:
  *     summary: Create a customer
+ *     description: The agent id is taken from the access token and saved on the customer. It is not sent in the body.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []

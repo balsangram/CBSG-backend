@@ -76,6 +76,18 @@ const agentSchema = new mongoose.Schema(
             enum: ["active", "inactive", "blocked"],
             default: "active",
         },
+
+        totalCustomer: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        totalSaving: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
     },
     {
         timestamps: true,

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Customer from "../../../model/customer.model.js";
 import Interest from "../../../model/Interest.model.js";
 import Transaction from "../../../model/transaction.model.js";
+import { adjustTotals } from "../../agent/agent.repository.js";
 
 const COMPLETED = "COMPLETED";
 const RECENT_LIMIT = 5;
@@ -24,8 +25,9 @@ const monthWindow = () => {
 
 const findCustomerById = (id) => Customer.findById(id).select("_id");
 
-const updateCustomerSavings = (id, savings) => {
-  return Customer.findByIdAndUpdate(
+const updateCustomerSavings = async (id, savings) => {
+  const current = await Customer.findById(id).select("agentId totalSaving");
+  const updated = await Customer.findByIdAndUpdate(
     id,
     {
       monthlySaving: savings.monthlySaving,
@@ -33,6 +35,14 @@ const updateCustomerSavings = (id, savings) => {
     },
     { new: true, runValidators: true }
   ).select("monthlySaving totalSaving");
+
+  if (current?.agentId) {
+    await adjustTotals(current.agentId, {
+      saving: savings.totalSaving - (current.totalSaving || 0),
+    });
+  }
+
+  return updated;
 };
 
 const summarizeTransactions = (customerId) => {

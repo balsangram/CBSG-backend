@@ -8,6 +8,8 @@ const toAgentDto = (agent) => ({
   levelId: agent.levelId || null,
   levelModel: agent.levelModel || null,
   status: agent.status,
+  totalCustomer: agent.totalCustomer || 0,
+  totalSaving: agent.totalSaving || 0,
   createdAt: agent.createdAt,
   updatedAt: agent.updatedAt,
 });

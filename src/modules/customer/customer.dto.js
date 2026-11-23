@@ -4,9 +4,15 @@ const toCustomerDto = (customer) => ({
   email: customer.email || null,
   phone: customer.phone,
   photo: customer.photo || null,
+  agentId: customer.agentId || null,
   joiningDate: customer.joiningDate,
 });
 
 const toCustomerListDto = (customers) => customers.map(toCustomerDto);
 
-export { toCustomerDto, toCustomerListDto };
+const toCustomerPageDto = (customers, pagination) => ({
+  customers: toCustomerListDto(customers),
+  pagination,
+});
+
+export { toCustomerDto, toCustomerListDto, toCustomerPageDto };

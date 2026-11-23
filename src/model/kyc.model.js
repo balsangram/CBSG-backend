@@ -1,9 +1,50 @@
-
 import mongoose from "mongoose";
+
+const SECTION_STATUS = [
+  "PENDING",
+  "IN_PROGRESS",
+  "UNDER_REVIEW",
+  "VERIFIED",
+  "REJECTED",
+];
+
+const sectionSchema = (rejectedFieldNames = []) => {
+  const definition = {
+    status: {
+      type: String,
+      enum: SECTION_STATUS,
+      default: "PENDING",
+    },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+  };
+
+  if (rejectedFieldNames.length) {
+    const rejectedFields = {};
+
+    for (const name of rejectedFieldNames) {
+      rejectedFields[name] = {
+        type: Boolean,
+        default: false,
+      };
+    }
+
+    definition.rejectedFields = rejectedFields;
+  }
+
+  return new mongoose.Schema(definition, { _id: false });
+};
+
+const section = (rejectedFieldNames) => ({
+  type: sectionSchema(rejectedFieldNames),
+  default: () => ({}),
+});
 
 const kycSchema = new mongoose.Schema(
   {
-    // Customer submitting KYC
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
@@ -11,47 +52,29 @@ const kycSchema = new mongoose.Schema(
       unique: true,
     },
 
-    // Admin who verified KYC
     verifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",
       default: null,
     },
 
-    // Personal details verification
-    personalDetails: {
-      type: Boolean,
-      default: false,
-    },
+    personalDetails: section(["name", "phone", "fathersName", "dob"]),
 
-    // Address verification
-    address: {
-      type: Boolean,
-      default: false,
-    },
+    address: section(["address", "pinCode"]),
 
-    // Aadhaar and PAN verification
-    aadhaarPan: {
-      type: Boolean,
-      default: false,
-    },
+    aadhar: section(["aadhar", "aadharDocument"]),
 
-    // Bank account verification
-    bankAccount: {
-      type: Boolean,
-      default: false,
-    },
+    pan: section(["pan", "panDocument"]),
 
-    // Overall KYC status
+    photo: section(),
+
+    bankAccount: section(["bankName", "accountNumber", "ifscCode"]),
+
+    nominee: section(["nomineeName", "nomineeRelation"]),
+
     status: {
       type: String,
-      enum: [
-        "PENDING",
-        "IN_PROGRESS",
-        "UNDER_REVIEW",
-        "VERIFIED",
-        "REJECTED",
-      ],
+      enum: SECTION_STATUS,
       default: "PENDING",
     },
 
@@ -59,7 +82,6 @@ const kycSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-
   },
   {
     timestamps: true,

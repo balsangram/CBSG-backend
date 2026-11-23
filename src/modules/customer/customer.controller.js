@@ -9,7 +9,7 @@ import {
 } from "./customer.services.js";
 
 const getCustomers = asyncHandler(async (req, res) => {
-  const data = await getCustomersService();
+  const data = await getCustomersService(req.query);
   return apiResponse(res, 200, "Customers fetched successfully", data);
 });
 
@@ -19,7 +19,7 @@ const getCustomerById = asyncHandler(async (req, res) => {
 });
 
 const createCustomer = asyncHandler(async (req, res) => {
-  const data = await createCustomerService(req.body, req.files);
+  const data = await createCustomerService(req.user.id, req.body, req.files);
   return apiResponse(res, 201, "Customer created successfully", data);
 });
 

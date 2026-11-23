@@ -17,6 +17,17 @@ const updateById = (id, data) => {
 
 const deleteById = (id) => Agent.findByIdAndDelete(id);
 
+const adjustTotals = (id, { customers = 0, saving = 0 } = {}) => {
+  if (!id || (customers === 0 && saving === 0)) return null;
+
+  return Agent.findByIdAndUpdate(id, {
+    $inc: {
+      totalCustomer: customers,
+      totalSaving: saving,
+    },
+  });
+};
+
 const findLevel = (role, levelId) => {
   const LevelModel =
     role === "executive_manager" ? ExecutiveManagerLevel : TeamLeadLevel;
@@ -24,4 +35,12 @@ const findLevel = (role, levelId) => {
   return LevelModel.findById(levelId);
 };
 
-export { findAll, findById, create, updateById, deleteById, findLevel };
+export {
+  findAll,
+  findById,
+  create,
+  updateById,
+  deleteById,
+  adjustTotals,
+  findLevel,
+};

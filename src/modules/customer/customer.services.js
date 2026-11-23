@@ -1,13 +1,21 @@
 import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../utils/s3.js";
-import { toCustomerDto, toCustomerListDto } from "./customer.dto.js";
+import { toCustomerDto, toCustomerPageDto } from "./customer.dto.js";
+import {
+  adjustTotals,
+  findById as findAgentById,
+} from "../agent/agent.repository.js";
 import {
   create,
   deleteById,
-  findAll,
   findById,
+  findPage,
   updateById,
 } from "./customer.repository.js";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
 
 const httpError = (statusCode, message) => {
   const error = new Error(message);
@@ -63,9 +71,29 @@ const blankToNull = (data, keys) => {
   }
 };
 
-const getCustomers = async () => {
-  const customers = await findAll();
-  return toCustomerListDto(customers);
+const pageFrom = (query = {}) => {
+  const page = Number.parseInt(query.page, 10);
+  const limit = Number.parseInt(query.limit, 10);
+
+  return {
+    page: Number.isInteger(page) && page > 0 ? page : DEFAULT_PAGE,
+    limit:
+      Number.isInteger(limit) && limit > 0
+        ? Math.min(limit, MAX_LIMIT)
+        : DEFAULT_LIMIT,
+  };
+};
+
+const getCustomers = async (query) => {
+  const { page, limit } = pageFrom(query);
+  const [customers, total] = await findPage(page, limit);
+
+  return toCustomerPageDto(customers, {
+    page,
+    limit,
+    total,
+    totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+  });
 };
 
 const getCustomerById = async (id) => {
@@ -80,7 +108,19 @@ const getCustomerById = async (id) => {
   return toCustomerDto(customer);
 };
 
-const createCustomer = async (data, files) => {
+const createCustomer = async (agentId, data, files) => {
+  if (!mongoose.Types.ObjectId.isValid(agentId)) {
+    throw httpError(401, "Invalid agent session");
+  }
+
+  const agent = await findAgentById(agentId);
+
+  if (!agent) {
+    throw httpError(401, "Invalid agent session");
+  }
+
+  delete data.agentId;
+
   const uploads = await uploadDocuments(files);
   blankToNull(data, [
     "email",
@@ -98,12 +138,14 @@ const createCustomer = async (data, files) => {
   try {
     const customer = await create({
       ...data,
+      agentId,
       email: data.email || null,
       photo: uploads.photo || data.photo || null,
       aadharDocument: uploads.aadharDocument || null,
       panDocument: uploads.panDocument || null,
     });
 
+    await adjustTotals(agentId, { customers: 1 });
     return toCustomerDto(customer);
   } catch (error) {
     await deleteFiles(Object.values(uploads));
@@ -113,6 +155,7 @@ const createCustomer = async (data, files) => {
 
 const updateCustomer = async (id, data, files) => {
   assertId(id);
+  delete data.agentId;
 
   const customer = await findById(id);
 
@@ -170,6 +213,13 @@ const deleteCustomer = async (id) => {
     customer.aadharDocument,
     customer.panDocument,
   ]);
+
+  if (customer.agentId) {
+    await adjustTotals(customer.agentId, {
+      customers: -1,
+      saving: -(customer.totalSaving || 0),
+    });
+  }
 
   return toCustomerDto(customer);
 };

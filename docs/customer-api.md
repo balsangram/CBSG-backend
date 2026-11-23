@@ -171,7 +171,19 @@ Refresh token and FCM token are optional query parameters. A token is removed fr
 
 Creates a pending KYC record the first time it is requested.
 
-`status` is one of `PENDING`, `IN_PROGRESS`, `UNDER_REVIEW`, `VERIFIED`, `REJECTED`.
+Each section has `status` and `rejectionReason`. Every section except `photo` also has `rejectedFields`. Section `status` is one of `PENDING`, `IN_PROGRESS`, `UNDER_REVIEW`, `VERIFIED`, `REJECTED`. The top-level `status` uses the same values.
+
+Rejected field names:
+
+| Section | Fields |
+| --- | --- |
+| `personalDetails` | `name`, `phone`, `fathersName`, `dob` |
+| `address` | `address`, `pinCode` |
+| `aadhar` | `aadhar`, `aadharDocument` |
+| `pan` | `pan`, `panDocument` |
+| `photo` | none |
+| `bankAccount` | `bankName`, `accountNumber`, `ifscCode` |
+| `nominee` | `nomineeName`, `nomineeRelation` |
 
 ### Success `200`
 
@@ -182,10 +194,61 @@ Creates a pending KYC record the first time it is requested.
   "data": {
     "id": "6741a0c2e1b2c3d4e5f60730",
     "userId": "6741a0c2e1b2c3d4e5f60710",
-    "personalDetails": false,
-    "address": false,
-    "aadhaarPan": false,
-    "bankAccount": false,
+    "personalDetails": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "name": false,
+        "phone": false,
+        "fathersName": false,
+        "dob": false
+      }
+    },
+    "address": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "address": false,
+        "pinCode": false
+      }
+    },
+    "aadhar": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "aadhar": false,
+        "aadharDocument": false
+      }
+    },
+    "pan": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "pan": false,
+        "panDocument": false
+      }
+    },
+    "photo": {
+      "status": "PENDING",
+      "rejectionReason": null
+    },
+    "bankAccount": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "bankName": false,
+        "accountNumber": false,
+        "ifscCode": false
+      }
+    },
+    "nominee": {
+      "status": "PENDING",
+      "rejectionReason": null,
+      "rejectedFields": {
+        "nomineeName": false,
+        "nomineeRelation": false
+      }
+    },
     "status": "PENDING",
     "verifiedAt": null,
     "createdAt": "2026-11-23T06:30:00.000Z",
@@ -208,46 +271,32 @@ Creates a pending KYC record the first time it is requested.
 
 `:id` is the KYC id from the status response. Only the logged-in customer's KYC can be updated. Send at least one section.
 
-When every section is `true`, `status` becomes `UNDER_REVIEW`. A partial update becomes `IN_PROGRESS`. A record with no completed section stays `PENDING`.
+Send one or more section objects. A section can include `status`, `rejectionReason`, and `rejectedFields`. `photo` has no `rejectedFields`.
+
+The top-level `status` is `VERIFIED` when every section is verified, `REJECTED` when any section is rejected, `UNDER_REVIEW` when every section is under review or verified, and `IN_PROGRESS` when only some sections have moved past pending.
 
 `VERIFIED` and `REJECTED` records cannot be updated.
 
 ### Body
 
-| Field | Type | Required |
-| --- | --- | --- |
-| `personalDetails` | boolean | no |
-| `address` | boolean | no |
-| `aadhaarPan` | boolean | no |
-| `bankAccount` | boolean | no |
-
 ```json
 {
-  "personalDetails": true,
-  "address": true
+  "personalDetails": {
+    "status": "REJECTED",
+    "rejectionReason": "Name does not match the document",
+    "rejectedFields": {
+      "name": true,
+      "phone": false,
+      "fathersName": false,
+      "dob": false
+    }
+  }
 }
 ```
 
 ### Success `200`
 
-```json
-{
-  "success": true,
-  "message": "KYC updated successfully",
-  "data": {
-    "id": "6741a0c2e1b2c3d4e5f60730",
-    "userId": "6741a0c2e1b2c3d4e5f60710",
-    "personalDetails": true,
-    "address": true,
-    "aadhaarPan": false,
-    "bankAccount": false,
-    "status": "IN_PROGRESS",
-    "verifiedAt": null,
-    "createdAt": "2026-11-23T06:30:00.000Z",
-    "updatedAt": "2026-11-23T06:40:00.000Z"
-  }
-}
-```
+The response uses the same section objects as get KYC status. Message is `KYC updated successfully`.
 
 ### Errors
 

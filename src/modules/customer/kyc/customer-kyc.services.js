@@ -5,9 +5,9 @@ import {
   findKycByUserId,
   updateKycById,
 } from "../../kyc/kyc.repositories.js";
-import { toKycDto } from "./customer-kyc.dto.js";
+import { SECTIONS, toKycDto } from "./customer-kyc.dto.js";
 
-const SECTION_KEYS = ["personalDetails", "address", "aadhaarPan", "bankAccount"];
+const SECTION_KEYS = Object.keys(SECTIONS);
 
 const httpError = (statusCode, message) => {
   const error = new Error(message);
@@ -21,11 +21,47 @@ const assertCustomerId = (id) => {
   }
 };
 
-const statusFor = (kyc) => {
-  const completed = SECTION_KEYS.filter((key) => kyc[key]).length;
+const plainSection = (section) => {
+  if (!section) return {};
+  return typeof section.toObject === "function" ? section.toObject() : { ...section };
+};
 
-  if (completed === 0) return "PENDING";
-  if (completed === SECTION_KEYS.length) return "UNDER_REVIEW";
+const mergeSection = (current, incoming, fields) => {
+  const existing = plainSection(current);
+  const next = {
+    status: incoming.status ?? existing.status ?? "PENDING",
+    rejectionReason:
+      incoming.rejectionReason === ""
+        ? null
+        : (incoming.rejectionReason ?? existing.rejectionReason ?? null),
+  };
+
+  if (!fields.length) return next;
+
+  next.rejectedFields = {};
+
+  for (const field of fields) {
+    const value = incoming.rejectedFields?.[field];
+    next.rejectedFields[field] =
+      value === undefined ? Boolean(existing.rejectedFields?.[field]) : value;
+  }
+
+  return next;
+};
+
+const statusFor = (sections) => {
+  const statuses = SECTION_KEYS.map(
+    (key) => sections[key]?.status || "PENDING"
+  );
+
+  if (statuses.every((status) => status === "VERIFIED")) return "VERIFIED";
+  if (statuses.some((status) => status === "REJECTED")) return "REJECTED";
+  if (
+    statuses.every((status) => status === "UNDER_REVIEW" || status === "VERIFIED")
+  ) {
+    return "UNDER_REVIEW";
+  }
+  if (statuses.every((status) => status === "PENDING")) return "PENDING";
   return "IN_PROGRESS";
 };
 
@@ -69,12 +105,13 @@ const updateKyc = async (customerId, id, data) => {
     throw httpError(400, "This KYC can no longer be updated");
   }
 
-  const next = {
-    personalDetails: data.personalDetails ?? kyc.personalDetails,
-    address: data.address ?? kyc.address,
-    aadhaarPan: data.aadhaarPan ?? kyc.aadhaarPan,
-    bankAccount: data.bankAccount ?? kyc.bankAccount,
-  };
+  const next = {};
+
+  for (const key of SECTION_KEYS) {
+    next[key] = data[key]
+      ? mergeSection(kyc[key], data[key], SECTIONS[key])
+      : plainSection(kyc[key]);
+  }
 
   const updated = await updateKycById(id, {
     ...next,
