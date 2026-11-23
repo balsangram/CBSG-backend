@@ -33,7 +33,12 @@ const notificationSchema = new mongoose.Schema(
         "SYSTEM",
       ],
       default: "INFO",
-    }
+    },
+
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

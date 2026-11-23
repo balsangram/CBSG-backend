@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import generateOtp from "../../../utils/generateOtp.js";
 import { comparePassword, hashPassword } from "../../../utils/password.js";
 import {
@@ -5,10 +6,13 @@ import {
   generateRefreshToken,
 } from "../../../utils/generateToken.js";
 import { toOtpDto, toSessionDto } from "../../auth/auth.dto.js";
+import { findKycByUserId } from "../../kyc/kyc.repositories.js";
 import {
   deleteOtps,
+  findById,
   findByPhone,
   findOtpById,
+  removeSessionTokens,
   replaceOtp,
   saveOtp,
   saveRefreshToken,
@@ -96,7 +100,56 @@ const customerVerifyOtp = async ({ phone, otp, id, fcmToken }) => {
 
   await verifyOtp(customer, otp, id);
 
-  return createSession(customer, "customer", fcmToken);
+  const session = await createSession(customer, "customer", fcmToken);
+  const kyc = await findKycByUserId(customer._id);
+
+  return {
+    ...session,
+    status: kyc?.status || "PENDING",
+  };
 };
 
-export { customerSendOtp, customerVerifyOtp };
+const optionalToken = (value, label) => {
+  if (value == null || value === "") return null;
+
+  if (typeof value !== "string" || !value.trim()) {
+    throw httpError(400, `${label} must be a string`);
+  }
+
+  const token = value.trim();
+
+  if (token.length > 2000) {
+    throw httpError(400, `${label} is too long`);
+  }
+
+  return token;
+};
+
+const customerLogout = async (customerId, { refreshToken, fcmToken } = {}) => {
+  if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    throw httpError(401, "Invalid customer session");
+  }
+
+  const customer = await findById(customerId);
+
+  if (!customer) {
+    throw httpError(404, "Customer not found");
+  }
+
+  const refresh = optionalToken(refreshToken, "Refresh token");
+  const fcm = optionalToken(fcmToken, "FCM token");
+
+  if (refresh || fcm) {
+    await removeSessionTokens(customer._id, {
+      refreshToken: refresh,
+      fcmToken: fcm,
+    });
+  }
+
+  return {
+    refreshTokenRemoved: Boolean(refresh),
+    fcmTokenRemoved: Boolean(fcm),
+  };
+};
+
+export { customerSendOtp, customerVerifyOtp, customerLogout };

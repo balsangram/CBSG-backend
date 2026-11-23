@@ -6,6 +6,17 @@ const ACCOUNT_MODEL = "Customer";
 
 const findByPhone = (phone) => Customer.findOne({ phone });
 
+const findById = (id) => Customer.findById(id);
+
+const removeSessionTokens = (customerId, { refreshToken, fcmToken }) => {
+  const pull = {};
+
+  if (refreshToken) pull.refreshToken = refreshToken;
+  if (fcmToken) pull.fcmToken = fcmToken;
+
+  return Customer.findByIdAndUpdate(customerId, { $pull: pull });
+};
+
 const replaceOtp = async ({ accountId, otp, expiresAt }) => {
   await OTP.deleteMany({ accountId, accountModel: ACCOUNT_MODEL });
 
@@ -42,9 +53,11 @@ const saveRefreshToken = (accountId, refreshToken, fcmToken) => {
 
 export {
   findByPhone,
+  findById,
   replaceOtp,
   findOtpById,
   saveOtp,
   deleteOtps,
   saveRefreshToken,
+  removeSessionTokens,
 };

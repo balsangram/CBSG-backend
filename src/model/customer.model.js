@@ -91,6 +91,16 @@ const customerSchema = new mongoose.Schema(
             trim: true,
             default: null,
         },
+        monthlySaving: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+        totalSaving: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
         isFistTime: {
             type: Boolean,
             default: false,

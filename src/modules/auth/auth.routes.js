@@ -75,7 +75,48 @@ router.post(
  *                 description: Optional device token. Stored only if it is new. Maximum 3.
  *     responses:
  *       200:
- *         description: Customer logged in
+ *         description: Customer logged in. status is the KYC status only.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Customer logged in successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                           nullable: true
+ *                         role:
+ *                           type: string
+ *                           example: customer
+ *                         photo:
+ *                           type: string
+ *                           nullable: true
+ *                         phone:
+ *                           type: string
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                       enum: [PENDING, IN_PROGRESS, UNDER_REVIEW, VERIFIED, REJECTED]
+ *                       example: PENDING
+ *                       description: KYC status for this customer
  */
 router.post(
     "/customer/verify-otp",
