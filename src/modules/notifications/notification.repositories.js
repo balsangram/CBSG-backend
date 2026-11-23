@@ -8,6 +8,15 @@ const findNotificationsByRole = (role) => {
   return findNotifications({ role });
 };
 
+const findNotificationsPage = (filter, page, limit) => {
+  const skip = (page - 1) * limit;
+
+  return Promise.all([
+    Notification.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Notification.countDocuments(filter),
+  ]);
+};
+
 const findNotificationById = (id) => Notification.findById(id);
 
 const createNotification = (data) => Notification.create(data);
@@ -28,6 +37,7 @@ const deleteNotificationById = (id) => Notification.findByIdAndDelete(id);
 export {
   findNotifications,
   findNotificationsByRole,
+  findNotificationsPage,
   findNotificationById,
   createNotification,
   updateNotificationById,

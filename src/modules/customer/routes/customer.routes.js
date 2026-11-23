@@ -25,6 +25,32 @@ const customerOnly = (req, res, next) => {
   next();
 };
 
+/**
+ * @swagger
+ * /customer/help-support:
+ *   get:
+ *     summary: Get customer help and support
+ *     description: Public. No access token is required.
+ *     tags: [Customer]
+ *     responses:
+ *       200:
+ *         description: Support name, phone, and questions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 success: true
+ *                 message: Help and support fetched successfully
+ *                 data:
+ *                   name: CBSG Customer Support
+ *                   phone: "9999999999"
+ *                   questions:
+ *                     - question: How do I complete my profile?
+ *                       answer: After login, save your father's name, date of birth, and upload your Aadhaar and PAN documents.
+ */
+router.get("/help-support", helpSupport);
+
 router.use(authMiddleware, customerOnly);
 
 /**
@@ -32,28 +58,44 @@ router.use(authMiddleware, customerOnly);
  * /customer/notifications:
  *   get:
  *     summary: List customer notifications
+ *     description: Returns USER notifications, 15 per page, newest first.
  *     tags: [Customer]
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
  *     responses:
  *       200:
- *         description: Notifications for the USER role
+ *         description: A page of 15 notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 success: true
+ *                 message: Notifications fetched successfully
+ *                 data:
+ *                   notifications:
+ *                     - id: 6741a0c2e1b2c3d4e5f60720
+ *                       role: USER
+ *                       heading: Welcome
+ *                       body: Your account is ready.
+ *                       type: INFO
+ *                       isRead: false
+ *                       createdAt: 2026-11-23T06:30:00.000Z
+ *                       updatedAt: 2026-11-23T06:30:00.000Z
+ *                   pagination:
+ *                     page: 1
+ *                     limit: 15
+ *                     total: 32
+ *                     totalPages: 3
  */
 router.get("/notifications", notifications);
-
-/**
- * @swagger
- * /customer/help-support:
- *   get:
- *     summary: Get customer help and support
- *     tags: [Customer]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Support name, phone, and questions
- */
-router.get("/help-support", helpSupport);
 
 /**
  * @swagger

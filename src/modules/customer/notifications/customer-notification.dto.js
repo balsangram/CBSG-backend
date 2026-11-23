@@ -13,4 +13,13 @@ const toCustomerNotificationListDto = (notifications) => {
   return notifications.map(toCustomerNotificationDto);
 };
 
-export { toCustomerNotificationDto, toCustomerNotificationListDto };
+const toCustomerNotificationPageDto = (notifications, pagination) => ({
+  notifications: toCustomerNotificationListDto(notifications),
+  pagination,
+});
+
+export {
+  toCustomerNotificationDto,
+  toCustomerNotificationListDto,
+  toCustomerNotificationPageDto,
+};

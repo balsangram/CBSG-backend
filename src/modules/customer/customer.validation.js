@@ -53,10 +53,10 @@ const aadhar = Joi.string()
 const pan = Joi.string()
   .trim()
   .uppercase()
-  .pattern(/^[A-Z]{5}\d{4}[A-Z]$/)
+  .pattern(/^[A-Z0-9]{10}$/)
   .allow(null, "")
   .messages({
-    "string.pattern.base": "PAN must be a valid 10 character number",
+    "string.pattern.base": "PAN must be 10 letters or digits",
   });
 
 const bankName = Joi.string().trim().min(2).max(80).allow(null, "").messages({
