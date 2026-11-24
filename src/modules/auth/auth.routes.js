@@ -136,17 +136,41 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [phone, role]
+ *             required: [phone]
  *             properties:
  *               phone:
  *                 type: string
  *                 example: "9876543210"
- *               role:
- *                 type: string
- *                 enum: [team_lead, executive_manager]
  *     responses:
  *       200:
- *         description: OTP sent
+ *         description: OTP sent. data.id is required for verify. data.role is the agent role. data.expiresAt is the verify-by time.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: OTP sent successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     phone:
+ *                       type: string
+ *                       example: "9876543210"
+ *                     role:
+ *                       type: string
+ *                       enum: [team_lead, executive_manager]
+ *                       example: team_lead
+ *                     expiresAt:
+ *                       type: string
+ *                       format: date-time
+ *                       description: OTP must be verified before this time
  *       404:
  *         description: Agent not found
  */
@@ -180,7 +204,48 @@ router.post(
  *                 type: string
  *     responses:
  *       200:
- *         description: Agent logged in
+ *         description: Agent is logged in automatically. user.role is the agent role. verifiedAt is the login time.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Agent logged in successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                           nullable: true
+ *                         role:
+ *                           type: string
+ *                           enum: [team_lead, executive_manager]
+ *                           example: team_lead
+ *                         photo:
+ *                           type: string
+ *                           nullable: true
+ *                         phone:
+ *                           type: string
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *                     verifiedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Time the OTP was verified and the session was created
  */
 router.post(
     "/agent/verify-otp",

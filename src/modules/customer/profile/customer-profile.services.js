@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../../utils/s3.js";
 import { toProfileDto } from "./customer-profile.dto.js";
 import { applyBankFields } from "../bank/customer-bank.dto.js";
-import { getOrCreateKyc, reopenBankAccountReview } from "../kyc/customer-kyc.services.js";
+import { getOrCreateKyc, reopenKycSections } from "../kyc/customer-kyc.services.js";
 import {
   deleteProfileById,
   findProfileById,
@@ -14,6 +14,16 @@ const FILE_FIELDS = [
   { input: "aadharDocument", key: "aadharDocument", folder: "customers/aadhar" },
   { input: "panDocument", key: "panDocument", folder: "customers/pan" },
 ];
+
+const KYC_SECTION_FIELDS = {
+  personalDetails: ["name", "phone", "fathersName", "dob"],
+  address: ["address", "pinCode"],
+  aadhar: ["aadhar", "aadharDocument"],
+  pan: ["pan", "panDocument"],
+  photo: ["photo"],
+  bankAccount: ["bankName", "accountNumber", "ifscCode"],
+  nominee: ["nominee", "nomineeRelation"],
+};
 
 const NULLABLE = [
   "email",
@@ -74,6 +84,25 @@ const uploadDocuments = async (files = {}) => {
 
 const deleteFiles = (urls) => {
   return Promise.all(urls.filter(Boolean).map((url) => deleteFromS3(url)));
+};
+
+const sameValue = (left, right) => {
+  const previous = left ?? null;
+  const next = right ?? null;
+
+  if (previous instanceof Date || next instanceof Date) {
+    const previousTime = previous instanceof Date ? previous.getTime() : null;
+    const nextTime = next instanceof Date ? next.getTime() : null;
+    return previousTime === nextTime;
+  }
+
+  return previous === next;
+};
+
+const changedKycSections = (before, after) => {
+  return Object.entries(KYC_SECTION_FIELDS)
+    .filter(([, fields]) => fields.some((key) => !sameValue(before[key], after[key])))
+    .map(([section]) => section);
 };
 
 const handleDuplicate = (error) => {
@@ -138,11 +167,9 @@ const afterLogin = async (customerId, data, files) => {
       await getOrCreateKyc(customerId);
     }
 
-    const bankChanged = ["bankName", "accountNumber", "ifscCode"].some(
-      (key) => (customer[key] || null) !== (updated[key] || null)
-    );
+    const sections = changedKycSections(customer, updated);
 
-    if (bankChanged) await reopenBankAccountReview(customerId);
+    if (sections.length) await reopenKycSections(customerId, sections);
 
     await deleteFiles(replaced);
     return profile;

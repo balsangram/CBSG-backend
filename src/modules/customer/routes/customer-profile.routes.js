@@ -85,7 +85,7 @@ const validateAfterLogin = (req, res, next) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  *   patch:
  *     summary: Update the logged-in customer's profile
- *     description: Every profile field can be sent. Only the customer in the access token is updated. Photo, Aadhaar document, and PAN document are file uploads. A KYC record is created when all 18 fields are filled.
+ *     description: Every profile field can be sent. Only the customer in the access token is updated. Photo, Aadhaar document, and PAN document are file uploads. A KYC record is created when all 18 fields are filled. Changing a field that belongs to a KYC section sets that section back to PENDING.
  *     tags: [Customer Profile]
  *     security:
  *       - BearerAuth: []

@@ -121,40 +121,63 @@ const updateKyc = async (customerId, id, data) => {
   return toKycDto(updated);
 };
 
-const reopenBankAccountReview = async (customerId) => {
+const pendingSection = (fields) => {
+  const section = {
+    status: "PENDING",
+    rejectionReason: null,
+  };
+
+  if (!fields.length) return section;
+
+  section.rejectedFields = {};
+
+  for (const field of fields) {
+    section.rejectedFields[field] = false;
+  }
+
+  return section;
+};
+
+const reopenKycSections = async (customerId, sectionKeys) => {
+  const keys = [...new Set(sectionKeys)].filter((key) =>
+    SECTION_KEYS.includes(key)
+  );
+
+  if (!keys.length) return null;
+
   const kyc = await findKycByUserId(customerId);
 
   if (!kyc) return null;
 
-  const bankAccount = {
-    status: "PENDING",
-    rejectionReason: null,
-    rejectedFields: {
-      bankName: false,
-      accountNumber: false,
-      ifscCode: false,
-    },
-  };
-
   const sections = {};
 
   for (const key of SECTION_KEYS) {
-    sections[key] = key === "bankAccount" ? bankAccount : plainSection(kyc[key]);
+    sections[key] = keys.includes(key)
+      ? pendingSection(SECTIONS[key])
+      : plainSection(kyc[key]);
   }
 
   const status = statusFor(sections);
-
-  return updateKycById(kyc._id, {
-    bankAccount,
+  const update = {
     status,
     verifiedAt: status === "VERIFIED" ? kyc.verifiedAt : null,
-  });
+  };
+
+  for (const key of keys) {
+    update[key] = sections[key];
+  }
+
+  return updateKycById(kyc._id, update);
 };
+
+const reopenBankAccountReview = (customerId) =>
+  reopenKycSections(customerId, ["bankAccount"]);
 
 export {
   getKycStatus,
   getOrCreateKyc,
   reopenBankAccountReview,
+  reopenKycSections,
   statusFor,
   updateKyc,
 };

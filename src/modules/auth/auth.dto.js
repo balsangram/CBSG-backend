@@ -26,6 +26,7 @@ const toOtpDto = (otpDoc, account) => {
     if (otpDoc.accountModel === "Agent") {
         dto.phone = account.phone;
         dto.role = account.role;
+        dto.expiresAt = otpDoc.expiresAt;
         return dto;
     }
 

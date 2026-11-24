@@ -83,8 +83,8 @@ const createSession = async (account, fcmToken) => {
   return toSessionDto(accessToken, refreshToken, account, account.role);
 };
 
-const agentSendOtp = async ({ phone, role }) => {
-  const agent = await findByPhone(phone, role);
+const agentSendOtp = async ({ phone }) => {
+  const agent = await findByPhone(phone);
 
   if (!agent) {
     throw httpError(404, "Agent not found");
@@ -105,7 +105,12 @@ const agentVerifyOtp = async ({ phone, otp, id, fcmToken }) => {
   assertActive(agent);
   await verifyOtp(agent, otp, id);
 
-  return createSession(agent, fcmToken);
+  const session = await createSession(agent, fcmToken);
+
+  return {
+    ...session,
+    verifiedAt: new Date(),
+  };
 };
 
 export { agentSendOtp, agentVerifyOtp };
