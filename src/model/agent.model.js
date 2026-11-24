@@ -1,8 +1,22 @@
 
 import mongoose from "mongoose";
+import { formatSequenceId, nextSequence } from "./counter.model.js";
+
+const AGENT_ID_PREFIX = {
+    executive_manager: "EM",
+    team_lead: "TL",
+};
 
 const agentSchema = new mongoose.Schema(
     {
+        // Auto Generated Employee Id — EM0001 or TL0001 based on role
+        employeeId: {
+            type: String,
+            unique: true,
+            sparse: true,
+            trim: true,
+        },
+
         // Agent Name
         name: {
             type: String,
@@ -57,6 +71,21 @@ const agentSchema = new mongoose.Schema(
             default: null,
         },
 
+        // Assigned Branch
+        branchId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Branch",
+            default: null,
+            index: true,
+        },
+
+        // Assigned Target
+        targetId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Target",
+            default: null,
+        },
+
         // Refresh Token
         refreshToken: {
             type: [{ type: String, trim: true }],
@@ -108,7 +137,45 @@ agentSchema.pre("validate", function () {
     }
 });
 
+agentSchema.pre("save", async function () {
+    if (this.employeeId) return;
+
+    const prefix = AGENT_ID_PREFIX[this.role];
+    if (!prefix) return;
+
+    const seq = await nextSequence(`agent:${this.role}`);
+    this.employeeId = formatSequenceId(prefix, seq);
+});
+
+const assignEmployeeId = async (agent) => {
+    if (!agent || agent.employeeId) return agent?.employeeId || null;
+
+    const prefix = AGENT_ID_PREFIX[agent.role];
+    if (!prefix) return null;
+
+    const seq = await nextSequence(`agent:${agent.role}`);
+    const employeeId = formatSequenceId(prefix, seq);
+    const updated = await Agent.findOneAndUpdate(
+        {
+            _id: agent._id,
+            $or: [{ employeeId: null }, { employeeId: { $exists: false } }],
+        },
+        { $set: { employeeId } },
+        { new: true }
+    ).select("employeeId");
+
+    if (updated?.employeeId) {
+        agent.employeeId = updated.employeeId;
+        return agent.employeeId;
+    }
+
+    const current = await Agent.findById(agent._id).select("employeeId");
+    agent.employeeId = current?.employeeId || null;
+    return agent.employeeId;
+};
+
 // Agent Model
 const Agent = mongoose.model("Agent", agentSchema);
 
+export { assignEmployeeId };
 export default Agent;

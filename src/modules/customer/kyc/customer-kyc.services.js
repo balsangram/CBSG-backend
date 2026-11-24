@@ -151,4 +151,10 @@ const reopenBankAccountReview = async (customerId) => {
   });
 };
 
-export { getKycStatus, getOrCreateKyc, reopenBankAccountReview, updateKyc };
+export {
+  getKycStatus,
+  getOrCreateKyc,
+  reopenBankAccountReview,
+  statusFor,
+  updateKyc,
+};

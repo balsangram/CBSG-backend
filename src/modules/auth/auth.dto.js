@@ -8,6 +8,7 @@ const toUserDto = (account, role) => {
     };
 
     if (account.phone) dto.phone = account.phone;
+    if (account.branchId) dto.branchId = account.branchId;
 
     return dto;
 };

@@ -1,5 +1,7 @@
 import Agent from "../../model/agent.model.js";
+import Branch from "../../model/branches.model.js";
 import ExecutiveManagerLevel from "../../model/executiveManagerLevel.model.js";
+import Target from "../../model/target.model.js";
 import TeamLeadLevel from "../../model/teamLeadLevel.model.js";
 
 const findAll = () => Agent.find().sort({ createdAt: -1 });
@@ -28,6 +30,10 @@ const adjustTotals = (id, { customers = 0, saving = 0 } = {}) => {
   });
 };
 
+const findBranch = (branchId) => Branch.findById(branchId);
+
+const findTarget = (targetId) => Target.findById(targetId);
+
 const findLevel = (role, levelId) => {
   const LevelModel =
     role === "executive_manager" ? ExecutiveManagerLevel : TeamLeadLevel;
@@ -42,5 +48,7 @@ export {
   updateById,
   deleteById,
   adjustTotals,
+  findBranch,
   findLevel,
+  findTarget,
 };

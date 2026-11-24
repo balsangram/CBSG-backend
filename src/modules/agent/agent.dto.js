@@ -1,5 +1,6 @@
 const toAgentDto = (agent) => ({
   id: agent._id,
+  employeeId: agent.employeeId || null,
   name: agent.name,
   email: agent.email,
   phone: agent.phone,
@@ -7,6 +8,8 @@ const toAgentDto = (agent) => ({
   role: agent.role,
   levelId: agent.levelId || null,
   levelModel: agent.levelModel || null,
+  branchId: agent.branchId || null,
+  targetId: agent.targetId || null,
   status: agent.status,
   totalCustomer: agent.totalCustomer || 0,
   totalSaving: agent.totalSaving || 0,

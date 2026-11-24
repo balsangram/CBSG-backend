@@ -5,8 +5,10 @@ import {
   create,
   deleteById,
   findAll,
+  findBranch,
   findById,
   findLevel,
+  findTarget,
   updateById,
 } from "./agent.repository.js";
 
@@ -38,11 +40,35 @@ const assertLevel = async (role, levelId) => {
   }
 };
 
+const assertBranch = async (branchId) => {
+  if (!branchId) return;
+
+  const branch = await findBranch(branchId);
+
+  if (!branch) {
+    throw httpError(404, "Branch not found");
+  }
+};
+
+const assertTarget = async (targetId) => {
+  if (!targetId) return;
+
+  const target = await findTarget(targetId);
+
+  if (!target) {
+    throw httpError(404, "Target not found");
+  }
+};
+
 const handleDuplicate = (error) => {
   if (error?.code !== 11000) throw error;
 
   const field = Object.keys(error.keyPattern || {})[0];
-  const label = field === "phone" ? "Phone number" : "Email";
+  const labels = {
+    phone: "Phone number",
+    employeeId: "Employee id",
+  };
+  const label = labels[field] || "Email";
   throw httpError(409, `${label} already exists`);
 };
 
@@ -66,6 +92,8 @@ const getAgentById = async (id) => {
 const createAgent = async (data, file) => {
   const role = data.role || "team_lead";
   await assertLevel(role, data.levelId);
+  await assertBranch(data.branchId);
+  await assertTarget(data.targetId);
 
   const photo = file ? await uploadToS3(file, "agents") : data.photo || null;
 
@@ -102,7 +130,11 @@ const updateAgent = async (id, data, file) => {
   }
 
   const levelId = data.levelId === undefined ? agent.levelId : data.levelId;
+  const branchId = data.branchId === undefined ? agent.branchId : data.branchId;
+  const targetId = data.targetId === undefined ? agent.targetId : data.targetId;
   await assertLevel(role, levelId);
+  await assertBranch(branchId);
+  await assertTarget(targetId);
 
   const photo = file ? await uploadToS3(file, "agents") : undefined;
 
