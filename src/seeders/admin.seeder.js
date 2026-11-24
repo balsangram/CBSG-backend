@@ -5,7 +5,7 @@ import Admin from "../model/admin.model.js";
 const adminSeeder = async () => {
   try {
     const exists = await Admin.findOne({
-      email: env.ADMIN_EMAIL,
+      $or: [{ email: env.ADMIN_EMAIL }, { phone: env.ADMIN_MOBILE }],
     });
 
     if (exists) {
@@ -23,6 +23,11 @@ const adminSeeder = async () => {
 
     console.log("Admin created successfully");
   } catch (error) {
+    if (error?.code === 11000) {
+      console.log("Admin already exists");
+      return;
+    }
+
     console.error("Admin seeder failed:", error.message);
     throw error;
   }

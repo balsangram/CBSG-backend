@@ -12,6 +12,8 @@ const PROFILE_FIELDS = [
   "aadharDocument",
   "pan",
   "panDocument",
+  "nominee",
+  "nomineeRelation",
   "bankName",
   "accountNumber",
   "ifscCode",

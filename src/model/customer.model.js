@@ -98,6 +98,16 @@ const customerSchema = new mongoose.Schema(
             trim: true,
             default: null,
         },
+        nominee: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        nomineeRelation: {
+            type: String,
+            trim: true,
+            default: null,
+        },
         monthlySaving: {
             type: Number,
             default: 0,

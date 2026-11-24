@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../../utils/s3.js";
 import { toProfileDto } from "./customer-profile.dto.js";
+import { applyBankFields } from "../bank/customer-bank.dto.js";
+import { getOrCreateKyc, reopenBankAccountReview } from "../kyc/customer-kyc.services.js";
 import {
   deleteProfileById,
   findProfileById,
@@ -24,6 +26,8 @@ const NULLABLE = [
   "aadharDocument",
   "pan",
   "panDocument",
+  "nominee",
+  "nomineeRelation",
   "bankName",
   "accountNumber",
   "ifscCode",
@@ -119,13 +123,29 @@ const afterLogin = async (customerId, data, files) => {
     throw httpError(400, "At least one field is required");
   }
 
+  const bank = applyBankFields(customer, data);
+
+  if (bank) Object.assign(data, bank);
+
   try {
     const updated = await updateProfileById(customerId, {
       ...data,
       isFistTime: true,
     });
+    const profile = toProfileDto(updated);
+
+    if (profile.filledFields === profile.totalFields) {
+      await getOrCreateKyc(customerId);
+    }
+
+    const bankChanged = ["bankName", "accountNumber", "ifscCode"].some(
+      (key) => (customer[key] || null) !== (updated[key] || null)
+    );
+
+    if (bankChanged) await reopenBankAccountReview(customerId);
+
     await deleteFiles(replaced);
-    return toProfileDto(updated);
+    return profile;
   } catch (error) {
     await deleteFiles(Object.values(uploads));
     handleDuplicate(error);

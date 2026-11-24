@@ -25,4 +25,4 @@ const toTransactionPageDto = (summary, transactions, pagination) => ({
   pagination,
 });
 
-export { toDashboardDto, toTransactionPageDto };
+export { toDashboardDto, toTransactionDto, toTransactionPageDto };

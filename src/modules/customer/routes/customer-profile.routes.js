@@ -64,11 +64,13 @@ const validateAfterLogin = (req, res, next) => {
  *                 aadharDocument: null
  *                 pan: ABCDE1234F
  *                 panDocument: null
- *                 bankName: State Bank of India
- *                 accountNumber: "123456789012"
- *                 ifscCode: SBIN0001234
- *                 filledFields: 12
- *                 totalFields: 16
+ *                 nominee: null
+ *                 nomineeRelation: null
+ *                 bankName: null
+ *                 accountNumber: null
+ *                 ifscCode: null
+ *                 filledFields: 10
+ *                 totalFields: 18
  *       401:
  *         description: Authentication token is missing or expired
  *         content:
@@ -83,7 +85,7 @@ const validateAfterLogin = (req, res, next) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  *   patch:
  *     summary: Update the logged-in customer's profile
- *     description: Every profile field can be sent. Only the customer in the access token is updated. Photo, Aadhaar document, and PAN document are file uploads.
+ *     description: Every profile field can be sent. Only the customer in the access token is updated. Photo, Aadhaar document, and PAN document are file uploads. A KYC record is created when all 18 fields are filled.
  *     tags: [Customer Profile]
  *     security:
  *       - BearerAuth: []
@@ -125,6 +127,10 @@ const validateAfterLogin = (req, res, next) => {
  *               panDocument:
  *                 type: string
  *                 format: binary
+ *               nominee:
+ *                 type: string
+ *               nomineeRelation:
+ *                 type: string
  *               bankName:
  *                 type: string
  *               accountNumber:
@@ -156,11 +162,13 @@ const validateAfterLogin = (req, res, next) => {
  *                 aadharDocument: https://example.com/customers/aadhar/aadhaar.pdf
  *                 pan: ABCDE1234F
  *                 panDocument: https://example.com/customers/pan/pan.pdf
+ *                 nominee: Ramesh Patel
+ *                 nomineeRelation: Father
  *                 bankName: State Bank of India
  *                 accountNumber: "123456789012"
  *                 ifscCode: SBIN0001234
- *                 filledFields: 16
- *                 totalFields: 16
+ *                 filledFields: 18
+ *                 totalFields: 18
  *       401:
  *         description: Authentication token is missing or expired
  *         content:

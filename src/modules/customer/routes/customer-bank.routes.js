@@ -17,7 +17,7 @@ const router = express.Router();
  * @swagger
  * /customer/bank:
  *   get:
- *     summary: Get the logged-in customer's bank details
+ *     summary: Get the logged-in customer's bank account
  *     tags: [Customer Bank]
  *     security:
  *       - BearerAuth: []
@@ -25,7 +25,7 @@ const router = express.Router();
  *       200:
  *         description: Bank name, account number, and IFSC code
  *   post:
- *     summary: Save bank details
+ *     summary: Save the customer's bank account
  *     tags: [Customer Bank]
  *     security:
  *       - BearerAuth: []
@@ -45,7 +45,7 @@ const router = express.Router();
  *                 type: string
  *     responses:
  *       201:
- *         description: Bank details saved
+ *         description: Bank account saved
  *       409:
  *         description: Bank details already exist
  */
@@ -54,19 +54,12 @@ router.post("/", validateMiddleware(saveBankSchema), saveBankDetails);
 
 /**
  * @swagger
- * /customer/bank/{id}:
+ * /customer/bank:
  *   patch:
- *     summary: Update the logged-in customer's bank details
+ *     summary: Update the logged-in customer's bank account
  *     tags: [Customer Bank]
  *     security:
  *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Customer id returned by the bank details response
  *     requestBody:
  *       required: true
  *       content:
@@ -83,22 +76,18 @@ router.post("/", validateMiddleware(saveBankSchema), saveBankDetails);
  *     responses:
  *       200:
  *         description: Bank details updated
+ *       404:
+ *         description: Bank details not found
  *   delete:
  *     summary: Clear the logged-in customer's bank details
  *     tags: [Customer Bank]
  *     security:
  *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
  *     responses:
  *       200:
  *         description: Bank details cleared
  */
-router.patch("/:id", validateMiddleware(updateBankSchema), updateBankDetails);
-router.delete("/:id", deleteBankDetails);
+router.patch("/", validateMiddleware(updateBankSchema), updateBankDetails);
+router.delete("/", deleteBankDetails);
 
 export default router;

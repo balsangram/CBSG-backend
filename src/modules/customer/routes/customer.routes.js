@@ -6,11 +6,9 @@ import { logout } from "../auth/customerAuth.controller.js";
 import customerKycRoutes from "./customer-kyc.routes.js";
 import customerProfileRoutes from "./customer-profile.routes.js";
 import customerBankRoutes from "./customer-bank.routes.js";
-import {
-  dashboard,
-  transactions,
-} from "../transaction/customer-transaction.controller.js";
+import { dashboard } from "../transaction/customer-transaction.controller.js";
 import { plans } from "../plans/customer-plan.controller.js";
+import customerTransactionsRoutes from "./customer-transactions.router.js";
 
 const router = express.Router();
 
@@ -130,7 +128,7 @@ router.use("/bank", customerBankRoutes);
  * /customer/dashboard:
  *   get:
  *     summary: Get the logged-in customer's savings dashboard
- *     description: Total saving is the sum of completed savings. Monthly saving is the amount added in the current month. At most five latest transactions are returned.
+ *     description: Total saving adds pending, processing, and completed savings. Monthly saving is that amount for the current month. At most four latest transactions are returned.
  *     tags: [Customer]
  *     security:
  *       - BearerAuth: []
@@ -156,50 +154,7 @@ router.use("/bank", customerBankRoutes);
  */
 router.get("/dashboard", dashboard);
 
-/**
- * @swagger
- * /customer/transactions:
- *   get:
- *     summary: List the logged-in customer's transactions
- *     description: Returns every transaction with pagination, plus totals for completed savings, completed withdrawals, and interest.
- *     tags: [Customer]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 50
- *           default: 10
- *     responses:
- *       200:
- *         description: Transaction page and savings summary
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TransactionListResponse'
- *       401:
- *         description: Authentication token is missing or expired
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       404:
- *         description: Customer not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.get("/transactions", transactions);
+router.use("/transactions", customerTransactionsRoutes);
 
 /**
  * @swagger

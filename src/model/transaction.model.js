@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Customer",
       required: true,
       index: true,
     },
@@ -19,7 +19,7 @@ const transactionSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: ["SAVING", "WITHDRAWAL"],
-      required: true,
+      default: "SAVING",
     },
 
     amount: {
@@ -42,13 +42,13 @@ const transactionSchema = new mongoose.Schema(
         "FAILED",
         "REVERSED",
       ],
-      default: "PENDING",
+      default: "COMPLETED",
     },
 
     paymentType: {
       type: String,
       enum: ["UPI", "BANK", "CARD", "NETBANKING"],
-      required: true,
+      default: "UPI",
     },
 
     // User's withdrawal destination
@@ -61,39 +61,6 @@ const transactionSchema = new mongoose.Schema(
       bankId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "BankAccount",
-        default: null,
-      },
-
-      razorpayFundAccountId: {
-        type: String,
-        default: null,
-      },
-    },
-
-    // Razorpay transaction references
-    razorpay: {
-      orderId: {
-        type: String,
-        default: null,
-      },
-
-      paymentId: {
-        type: String,
-        default: null,
-      },
-
-      payoutId: {
-        type: String,
-        default: null,
-      },
-
-      utr: {
-        type: String,
-        default: null,
-      },
-
-      referenceId: {
-        type: String,
         default: null,
       },
     },

@@ -1,10 +1,14 @@
+import { randomBytes } from "crypto";
 import mongoose from "mongoose";
-import { toDashboardDto, toTransactionPageDto } from "./customer-transaction.dto.js";
+import { toDashboardDto, toTransactionDto, toTransactionPageDto } from "./customer-transaction.dto.js";
+import { findKycByUserId } from "../../kyc/kyc.repositories.js";
 import {
+  createTransaction,
   findCustomerById,
   findInterestByCustomerId,
   findRecentTransactions,
   findTransactions,
+  sumTransactionsByType,
   summarizeTransactions,
   updateCustomerSavings,
 } from "./customer-transaction.repository.js";
@@ -73,15 +77,55 @@ const getDashboard = async (customerId) => {
   return toDashboardDto(savings, transactions);
 };
 
+const sendAmount = async (
+  customerId,
+  { amount, type = "SAVING", paymentType = "BANK" }
+) => {
+  assertCustomerId(customerId);
+
+  const customer = await findCustomerById(customerId);
+
+  if (!customer) {
+    throw httpError(404, "Customer not found");
+  }
+
+  if (type === "WITHDRAWAL") {
+    const kyc = await findKycByUserId(customerId);
+
+    if (kyc?.status !== "VERIFIED") {
+      throw httpError(403, "First verify your KYC");
+    }
+  }
+
+  const transaction = await createTransaction({
+    userId: customerId,
+    transactionId: `TXN${Date.now()}${randomBytes(3).toString("hex").toUpperCase()}`,
+    type,
+    amount,
+    currency: "INR",
+    status: "PENDING",
+    paymentType,
+  });
+
+  return toTransactionDto(transaction);
+};
+
 const getTransactions = async (customerId, query) => {
   assertCustomerId(customerId);
 
   const { page, limit } = pageFrom(query);
-  const [savings, interest, [transactions, total]] = await Promise.all([
-    loadSavings(customerId),
+  const [customer, rows, interest, [transactions, total]] = await Promise.all([
+    findCustomerById(customerId),
+    sumTransactionsByType(customerId),
     findInterestByCustomerId(customerId),
     findTransactions(customerId, page, limit),
   ]);
+
+  if (!customer) {
+    throw httpError(404, "Customer not found");
+  }
+
+  const savings = savingsFrom(rows);
 
   return toTransactionPageDto(
     {
@@ -99,4 +143,4 @@ const getTransactions = async (customerId, query) => {
   );
 };
 
-export { getDashboard, getTransactions };
+export { getDashboard, getTransactions, sendAmount };
