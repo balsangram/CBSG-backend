@@ -18,12 +18,12 @@ const saveBankDetails = asyncHandler(async (req, res) => {
 });
 
 const updateBankDetails = asyncHandler(async (req, res) => {
-  const data = await updateBankDetailsService(req.user.id, req.params.id, req.body);
+  const data = await updateBankDetailsService(req.user.id, req.body);
   return apiResponse(res, 200, "Bank details updated successfully", data);
 });
 
 const deleteBankDetails = asyncHandler(async (req, res) => {
-  const data = await deleteBankDetailsService(req.user.id, req.params.id);
+  const data = await deleteBankDetailsService(req.user.id);
   return apiResponse(res, 200, "Bank details deleted successfully", data);
 });
 

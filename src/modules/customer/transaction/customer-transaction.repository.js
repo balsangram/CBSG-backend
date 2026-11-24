@@ -4,8 +4,8 @@ import Interest from "../../../model/Interest.model.js";
 import Transaction from "../../../model/transaction.model.js";
 import { adjustTotals } from "../../agent/agent.repository.js";
 
-const COMPLETED = "COMPLETED";
-const RECENT_LIMIT = 5;
+const COUNTED_STATUSES = ["PENDING", "PROCESSING", "COMPLETED"];
+const RECENT_LIMIT = 4;
 
 const monthWindow = () => {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -52,7 +52,7 @@ const summarizeTransactions = (customerId) => {
     {
       $match: {
         userId: new mongoose.Types.ObjectId(customerId),
-        status: COMPLETED,
+        status: { $in: COUNTED_STATUSES },
       },
     },
     {
@@ -82,6 +82,23 @@ const summarizeTransactions = (customerId) => {
   ]);
 };
 
+const sumTransactionsByType = (customerId) => {
+  return Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(customerId),
+        status: { $in: COUNTED_STATUSES },
+      },
+    },
+    {
+      $group: {
+        _id: "$type",
+        total: { $sum: "$amount" },
+      },
+    },
+  ]);
+};
+
 const findRecentTransactions = (customerId) => {
   return Transaction.find({ userId: customerId })
     .sort({ createdAt: -1 })
@@ -100,15 +117,19 @@ const findTransactions = (customerId, page, limit) => {
   ]);
 };
 
+const createTransaction = (data) => Transaction.create(data);
+
 const findInterestByCustomerId = (customerId) => {
   return Interest.findOne({ userId: customerId }).select("interest");
 };
 
 export {
+  createTransaction,
   findCustomerById,
   findInterestByCustomerId,
   findRecentTransactions,
   findTransactions,
+  sumTransactionsByType,
   summarizeTransactions,
   updateCustomerSavings,
 };

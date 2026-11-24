@@ -121,4 +121,34 @@ const updateKyc = async (customerId, id, data) => {
   return toKycDto(updated);
 };
 
-export { getKycStatus, updateKyc, statusFor };
+const reopenBankAccountReview = async (customerId) => {
+  const kyc = await findKycByUserId(customerId);
+
+  if (!kyc) return null;
+
+  const bankAccount = {
+    status: "PENDING",
+    rejectionReason: null,
+    rejectedFields: {
+      bankName: false,
+      accountNumber: false,
+      ifscCode: false,
+    },
+  };
+
+  const sections = {};
+
+  for (const key of SECTION_KEYS) {
+    sections[key] = key === "bankAccount" ? bankAccount : plainSection(kyc[key]);
+  }
+
+  const status = statusFor(sections);
+
+  return updateKycById(kyc._id, {
+    bankAccount,
+    status,
+    verifiedAt: status === "VERIFIED" ? kyc.verifiedAt : null,
+  });
+};
+
+export { getKycStatus, getOrCreateKyc, reopenBankAccountReview, updateKyc };

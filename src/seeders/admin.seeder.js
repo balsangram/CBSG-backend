@@ -23,6 +23,11 @@ const adminSeeder = async () => {
 
     console.log("Admin created successfully");
   } catch (error) {
+    if (error?.code === 11000) {
+      console.log("Admin already exists");
+      return;
+    }
+
     console.error("Admin seeder failed:", error.message);
     throw error;
   }

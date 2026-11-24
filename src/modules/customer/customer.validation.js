@@ -59,6 +59,14 @@ const pan = Joi.string()
     "string.pattern.base": "PAN must be 10 letters or digits",
   });
 
+const nominee = Joi.string().trim().min(2).max(80).allow(null, "").messages({
+  "string.min": "Nominee name must be at least 2 characters",
+});
+
+const nomineeRelation = Joi.string().trim().min(2).max(40).allow(null, "").messages({
+  "string.min": "Nominee relation must be at least 2 characters",
+});
+
 const bankName = Joi.string().trim().min(2).max(80).allow(null, "").messages({
   "string.min": "Bank name must be at least 2 characters",
 });
@@ -92,6 +100,8 @@ export const createCustomerSchema = Joi.object({
   pinCode,
   aadhar,
   pan,
+  nominee,
+  nomineeRelation,
   bankName,
   accountNumber,
   ifscCode,
@@ -109,9 +119,11 @@ export const updateCustomerSchema = Joi.object({
   pinCode: pinCode.optional(),
   aadhar,
   pan,
-  bankName: bankName.optional(),
-  accountNumber: accountNumber.optional(),
-  ifscCode: ifscCode.optional(),
+  nominee,
+  nomineeRelation,
+  bankName,
+  accountNumber,
+  ifscCode,
 }).min(1).messages({
   "object.min": "At least one field is required",
 });

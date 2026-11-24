@@ -126,15 +126,19 @@ router.use(authMiddleware, agentOnly);
  *                 type: string
  *               pinCode:
  *                 type: string
+ *               aadhar:
+ *                 type: string
+ *               pan:
+ *                 type: string
+ *               nominee:
+ *                 type: string
+ *               nomineeRelation:
+ *                 type: string
  *               bankName:
  *                 type: string
  *               accountNumber:
  *                 type: string
  *               ifscCode:
- *                 type: string
- *               aadhar:
- *                 type: string
- *               pan:
  *                 type: string
  *               photo:
  *                 type: string
@@ -204,15 +208,19 @@ router.get("/", getCustomers);
  *                 type: string
  *               pinCode:
  *                 type: string
+ *               aadhar:
+ *                 type: string
+ *               pan:
+ *                 type: string
+ *               nominee:
+ *                 type: string
+ *               nomineeRelation:
+ *                 type: string
  *               bankName:
  *                 type: string
  *               accountNumber:
  *                 type: string
  *               ifscCode:
- *                 type: string
- *               aadhar:
- *                 type: string
- *               pan:
  *                 type: string
  *               photo:
  *                 type: string

@@ -12,6 +12,26 @@ The token must belong to a customer. Any other account receives `403` with messa
 
 JSON routes use `Content-Type: application/json`. Profile update uses `multipart/form-data`.
 
+| Method | Path |
+| --- | --- |
+| `GET` | `/api/v1/customer/help-support` |
+| `GET` | `/api/v1/customer/notifications` |
+| `GET` | `/api/v1/customer/logout` |
+| `GET` | `/api/v1/customer/kyc/status` |
+| `PATCH` | `/api/v1/customer/kyc/:id` |
+| `GET` | `/api/v1/customer/profile` |
+| `PATCH` | `/api/v1/customer/profile` |
+| `DELETE` | `/api/v1/customer/profile` |
+| `GET` | `/api/v1/customer/bank` |
+| `POST` | `/api/v1/customer/bank` |
+| `PATCH` | `/api/v1/customer/bank` |
+| `DELETE` | `/api/v1/customer/bank` |
+| `GET` | `/api/v1/customer/dashboard` |
+| `POST` | `/api/v1/customer/transactions/saving` |
+| `POST` | `/api/v1/customer/transactions/withdrawal` |
+| `GET` | `/api/v1/customer/transactions` |
+| `GET` | `/api/v1/customer/plans` |
+
 ## Response shape
 
 Success:
@@ -315,7 +335,7 @@ The response uses the same section objects as get KYC status. Message is `KYC up
 
 `GET /api/v1/customer/profile`
 
-Returns the logged-in customer's profile. `filledFields` is how many of the 16 profile fields have a value. `totalFields` is always `16`.
+Returns the logged-in customer's profile. `filledFields` is how many of the 18 profile fields have a value. `totalFields` is always `18`.
 
 ### Success `200`
 
@@ -338,11 +358,13 @@ Returns the logged-in customer's profile. `filledFields` is how many of the 16 p
     "aadharDocument": null,
     "pan": "ABCDE1234F",
     "panDocument": null,
-    "bankName": "State Bank of India",
-    "accountNumber": "123456789012",
-    "ifscCode": "SBIN0001234",
-    "filledFields": 12,
-    "totalFields": 16
+    "nominee": null,
+    "nomineeRelation": null,
+    "bankName": null,
+    "accountNumber": null,
+    "ifscCode": null,
+    "filledFields": 10,
+    "totalFields": 18
   }
 }
 ```
@@ -360,7 +382,7 @@ Returns the logged-in customer's profile. `filledFields` is how many of the 16 p
 
 `PATCH /api/v1/customer/profile`
 
-Updates only the customer in the access token. Send at least one field, or one file. Empty string clears a nullable field.
+Updates only the customer in the access token. Send at least one field, or one file. Empty string clears a nullable field. When all 18 profile fields have a value, a KYC record is created for that customer if one does not already exist. Changing `bankName`, `accountNumber`, or `ifscCode` sets an existing KYC `bankAccount.status` back to `PENDING`.
 
 `Content-Type: multipart/form-data`
 
@@ -379,6 +401,8 @@ Updates only the customer in the access token. Send at least one field, or one f
 | `aadharDocument` | file | jpeg, png, webp, or pdf. Max 5 MB |
 | `pan` | string | 10 letters or digits, or empty to clear |
 | `panDocument` | file | jpeg, png, webp, or pdf. Max 5 MB |
+| `nominee` | string | 2 to 80 characters, or empty to clear |
+| `nomineeRelation` | string | 2 to 40 characters, or empty to clear |
 | `bankName` | string | 2 to 80 characters, or empty to clear |
 | `accountNumber` | string | 9 to 18 digits, or empty to clear |
 | `ifscCode` | string | Valid IFSC, or empty to clear |
@@ -431,6 +455,8 @@ Deletes the customer in the access token, plus that customer's KYC, interest rec
 
 `GET /api/v1/customer/bank`
 
+Returns the customer's one bank account. `bankName`, `accountNumber`, and `ifscCode` are `null` when none is saved.
+
 ### Success `200`
 
 ```json
@@ -438,7 +464,6 @@ Deletes the customer in the access token, plus that customer's KYC, interest rec
   "success": true,
   "message": "Bank details fetched successfully",
   "data": {
-    "id": "6741a0c2e1b2c3d4e5f60710",
     "bankName": "State Bank of India",
     "accountNumber": "123456789012",
     "ifscCode": "SBIN0001234"
@@ -446,7 +471,7 @@ Deletes the customer in the access token, plus that customer's KYC, interest rec
 }
 ```
 
-Missing bank fields are `null`. `data.id` is the customer id used by update and delete.
+`data` is three `null` fields when the customer has no bank account.
 
 ### Errors
 
@@ -461,7 +486,7 @@ Missing bank fields are `null`. `data.id` is the customer id used by update and 
 
 `POST /api/v1/customer/bank`
 
-All three fields are required. Fails when bank details already exist.
+All three fields are required. Fails when a bank account is already saved.
 
 ### Body
 
@@ -486,7 +511,6 @@ All three fields are required. Fails when bank details already exist.
   "success": true,
   "message": "Bank details saved successfully",
   "data": {
-    "id": "6741a0c2e1b2c3d4e5f60710",
     "bankName": "State Bank of India",
     "accountNumber": "123456789012",
     "ifscCode": "SBIN0001234"
@@ -507,9 +531,9 @@ All three fields are required. Fails when bank details already exist.
 
 ## 11. Update bank details
 
-`PATCH /api/v1/customer/bank/:id`
+`PATCH /api/v1/customer/bank`
 
-`:id` must be the logged-in customer's id. Send at least one field.
+Updates the customer's single bank account. Send at least one of `bankName`, `accountNumber`, or `ifscCode`. If a KYC record exists, `bankAccount.status` returns to `PENDING`.
 
 ### Body
 
@@ -521,7 +545,9 @@ All three fields are required. Fails when bank details already exist.
 
 ```json
 {
-  "ifscCode": "SBIN0005678"
+  "bankName": "SBI",
+  "accountNumber": "888888888",
+  "ifscCode": "HDFC0000124"
 }
 ```
 
@@ -532,10 +558,9 @@ All three fields are required. Fails when bank details already exist.
   "success": true,
   "message": "Bank details updated successfully",
   "data": {
-    "id": "6741a0c2e1b2c3d4e5f60710",
-    "bankName": "State Bank of India",
-    "accountNumber": "123456789012",
-    "ifscCode": "SBIN0005678"
+    "bankName": "SBI",
+    "accountNumber": "888888888",
+    "ifscCode": "HDFC0000124"
   }
 }
 ```
@@ -545,18 +570,17 @@ All three fields are required. Fails when bank details already exist.
 | Status | Message |
 | --- | --- |
 | `400` | Validation failed |
-| `400` | Invalid id |
 | `401` | Invalid customer session |
-| `403` | You can only access your own bank details |
 | `404` | Customer not found |
+| `404` | Bank details not found |
 
 ---
 
 ## 12. Clear bank details
 
-`DELETE /api/v1/customer/bank/:id`
+`DELETE /api/v1/customer/bank`
 
-`:id` must be the logged-in customer's id. Clears `bankName`, `accountNumber`, and `ifscCode`.
+Clears the customer's `bankName`, `accountNumber`, and `ifscCode`.
 
 ### Success `200`
 
@@ -565,7 +589,6 @@ All three fields are required. Fails when bank details already exist.
   "success": true,
   "message": "Bank details deleted successfully",
   "data": {
-    "id": "6741a0c2e1b2c3d4e5f60710",
     "bankName": null,
     "accountNumber": null,
     "ifscCode": null
@@ -577,9 +600,7 @@ All three fields are required. Fails when bank details already exist.
 
 | Status | Message |
 | --- | --- |
-| `400` | Invalid id |
 | `401` | Invalid customer session |
-| `403` | You can only access your own bank details |
 | `404` | Customer not found |
 | `404` | Bank details not found |
 
@@ -589,7 +610,7 @@ All three fields are required. Fails when bank details already exist.
 
 `GET /api/v1/customer/dashboard`
 
-`totalSaving` is the sum of completed `SAVING` transactions. `monthlySaving` is the amount added in the current month, India time. `transactions` contains at most the latest 5 transactions.
+`totalSaving` adds `PENDING`, `PROCESSING`, and `COMPLETED` `SAVING` transactions. `monthlySaving` is that amount for the current month, India time. `FAILED` and `REVERSED` are left out. `transactions` contains at most the latest 4 transactions.
 
 ### Success `200`
 
@@ -633,13 +654,114 @@ Transaction `type` is `SAVING` or `WITHDRAWAL`.
 
 ---
 
-## 14. Transactions
+## 14. Send a saving
+
+`POST /api/v1/customer/transactions/saving`
+
+Creates a pending `SAVING` transaction. Do not send `type`.
+
+### Body
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `amount` | number | yes. At least 1 |
+| `paymentType` | string | no. `UPI`, `BANK`, `CARD`, or `NETBANKING`. Default `BANK` |
+
+```json
+{
+  "amount": 1000
+}
+```
+
+### Success `201`
+
+```json
+{
+  "success": true,
+  "message": "Amount sent successfully",
+  "data": {
+    "id": "6741a0c2e1b2c3d4e5f60740",
+    "transactionId": "TXN1732368000AB12CD",
+    "type": "SAVING",
+    "amount": 1000,
+    "currency": "INR",
+    "status": "PENDING",
+    "paymentType": "BANK",
+    "failureReason": null,
+    "completedAt": null,
+    "createdAt": "2026-11-23T12:00:00.000Z"
+  }
+}
+```
+
+### Errors
+
+| Status | Message |
+| --- | --- |
+| `400` | Validation failed |
+| `401` | Invalid customer session |
+| `404` | Customer not found |
+
+---
+
+## 15. Withdraw an amount
+
+`POST /api/v1/customer/transactions/withdrawal`
+
+Creates a pending `WITHDRAWAL` transaction. Do not send `type`. The customer's KYC `status` must be `VERIFIED`.
+
+### Body
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `amount` | number | yes. At least 1 |
+| `paymentType` | string | no. `UPI`, `BANK`, `CARD`, or `NETBANKING`. Default `BANK` |
+
+```json
+{
+  "amount": 1000
+}
+```
+
+### Success `201`
+
+```json
+{
+  "success": true,
+  "message": "Amount sent successfully",
+  "data": {
+    "id": "6741a0c2e1b2c3d4e5f60740",
+    "transactionId": "TXN1732368000AB12CD",
+    "type": "WITHDRAWAL",
+    "amount": 1000,
+    "currency": "INR",
+    "status": "PENDING",
+    "paymentType": "BANK",
+    "failureReason": null,
+    "completedAt": null,
+    "createdAt": "2026-11-23T12:00:00.000Z"
+  }
+}
+```
+
+### Errors
+
+| Status | Message |
+| --- | --- |
+| `400` | Validation failed |
+| `401` | Invalid customer session |
+| `403` | First verify your KYC |
+| `404` | Customer not found |
+
+---
+
+## 16. Transactions
 
 `GET /api/v1/customer/transactions`
 
 Returns every transaction for the logged-in customer, newest first.
 
-`summary.totalSaved` and `summary.totalWithdrawn` count completed transactions only. `summary.totalInterest` comes from the interest record, or `0` when none exists.
+`summary.totalSaved` and `summary.totalWithdrawn` add up `PENDING`, `PROCESSING`, and `COMPLETED` transactions. `FAILED` and `REVERSED` are left out. `summary.totalInterest` comes from the interest record, or `0` when none exists.
 
 ### Query
 
@@ -693,7 +815,7 @@ Returns every transaction for the logged-in customer, newest first.
 
 ---
 
-## 15. Active plans
+## 17. Active plans
 
 `GET /api/v1/customer/plans`
 

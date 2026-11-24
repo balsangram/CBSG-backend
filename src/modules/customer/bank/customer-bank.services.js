@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { toBankDto } from "./customer-bank.dto.js";
+import { hasBank, toBankDto } from "./customer-bank.dto.js";
+import { reopenBankAccountReview } from "../kyc/customer-kyc.services.js";
 import {
   findCustomerBank,
   updateCustomerBank,
@@ -15,24 +16,6 @@ const assertCustomerId = (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw httpError(401, "Invalid customer session");
   }
-};
-
-const assertOwner = (authId, id) => {
-  assertCustomerId(authId);
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw httpError(400, "Invalid id");
-  }
-
-  if (authId !== id) {
-    throw httpError(403, "You can only access your own bank details");
-  }
-};
-
-const hasBank = (customer) => {
-  return Boolean(
-    customer.bankName && customer.accountNumber && customer.ifscCode
-  );
 };
 
 const getCustomerOrThrow = async (id) => {
@@ -68,23 +51,38 @@ const saveBankDetails = async (customerId, data) => {
   return toBankDto(updated);
 };
 
-const updateBankDetails = async (authId, id, data) => {
-  assertOwner(authId, id);
-  await getCustomerOrThrow(id);
+const updateBankDetails = async (customerId, data) => {
+  assertCustomerId(customerId);
+  const customer = await getCustomerOrThrow(customerId);
 
-  const updated = await updateCustomerBank(id, data);
-  return toBankDto(updated);
-};
-
-const deleteBankDetails = async (authId, id) => {
-  assertOwner(authId, id);
-  const customer = await getCustomerOrThrow(id);
-
-  if (!customer.bankName && !customer.accountNumber && !customer.ifscCode) {
+  if (!hasBank(customer)) {
     throw httpError(404, "Bank details not found");
   }
 
-  const updated = await updateCustomerBank(id, {
+  const updated = await updateCustomerBank(customerId, {
+    bankName: data.bankName ?? customer.bankName,
+    accountNumber: data.accountNumber ?? customer.accountNumber,
+    ifscCode: data.ifscCode ?? customer.ifscCode,
+  });
+
+  const changed = ["bankName", "accountNumber", "ifscCode"].some(
+    (key) => (customer[key] || null) !== (updated[key] || null)
+  );
+
+  if (changed) await reopenBankAccountReview(customerId);
+
+  return toBankDto(updated);
+};
+
+const deleteBankDetails = async (customerId) => {
+  assertCustomerId(customerId);
+  const customer = await getCustomerOrThrow(customerId);
+
+  if (!hasBank(customer)) {
+    throw httpError(404, "Bank details not found");
+  }
+
+  const updated = await updateCustomerBank(customerId, {
     bankName: null,
     accountNumber: null,
     ifscCode: null,

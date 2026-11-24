@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../utils/s3.js";
 import { toCustomerDto, toCustomerPageDto } from "./customer.dto.js";
+import { applyBankFields } from "./bank/customer-bank.dto.js";
 import {
   adjustTotals,
   findById as findAgentById,
@@ -130,10 +131,16 @@ const createCustomer = async (agentId, data, files) => {
     "pinCode",
     "aadhar",
     "pan",
+    "nominee",
+    "nomineeRelation",
     "bankName",
     "accountNumber",
     "ifscCode",
   ]);
+
+  const bank = applyBankFields({}, data);
+
+  if (bank) Object.assign(data, bank);
 
   try {
     const customer = await create({
@@ -172,10 +179,16 @@ const updateCustomer = async (id, data, files) => {
     "pinCode",
     "aadhar",
     "pan",
+    "nominee",
+    "nomineeRelation",
     "bankName",
     "accountNumber",
     "ifscCode",
   ]);
+
+  const bank = applyBankFields(customer, data);
+
+  if (bank) Object.assign(data, bank);
 
   if (!customer.isFistTime) {
     data.isFistTime = true;
