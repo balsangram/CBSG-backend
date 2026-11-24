@@ -78,6 +78,12 @@ const kycSchema = new mongoose.Schema(
       default: "PENDING",
     },
 
+    rejectionReason: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     verifiedAt: {
       type: Date,
       default: null,
@@ -87,6 +93,9 @@ const kycSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+kycSchema.index({ status: 1, createdAt: -1 });
+kycSchema.index({ verifiedBy: 1 });
 
 const KYC = mongoose.model("KYC", kycSchema);
 

@@ -47,10 +47,13 @@ const env = {
     .split(",")
     .map((url) => url.trim()),
 
-  // Email
-  EMAIL_SERVICE: process.env.EMAIL_SERVICE,
+  // Email (SMTP)
+  EMAIL_HOST: process.env.EMAIL_HOST || "smtp.gmail.com",
+  EMAIL_PORT: Number(process.env.EMAIL_PORT) || 465,
+  EMAIL_SECURE: process.env.EMAIL_SECURE !== "false",
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_PASS: process.env.EMAIL_PASS,
+  EMAIL_FROM: process.env.EMAIL_FROM || process.env.EMAIL_USER,
 
   // AWS S3
   AWS_REGION: process.env.AWS_REGION,

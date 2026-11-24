@@ -121,4 +121,4 @@ const updateKyc = async (customerId, id, data) => {
   return toKycDto(updated);
 };
 
-export { getKycStatus, updateKyc };
+export { getKycStatus, updateKyc, statusFor };

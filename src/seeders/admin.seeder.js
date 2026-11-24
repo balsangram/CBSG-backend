@@ -5,7 +5,7 @@ import Admin from "../model/admin.model.js";
 const adminSeeder = async () => {
   try {
     const exists = await Admin.findOne({
-      email: env.ADMIN_EMAIL,
+      $or: [{ email: env.ADMIN_EMAIL }, { phone: env.ADMIN_MOBILE }],
     });
 
     if (exists) {

@@ -1,0 +1,107 @@
+{
+  "info": {
+    "name": "CBSG Admin - KYC",
+    "description": "Admin KYC review APIs. All routes require a Bearer token from admin login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{adminToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7080/api/v1"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "section",
+      "value": "aadhar"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get Customer KYC",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/admin/kyc/{{customerId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "kyc", "{{customerId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Approve Section",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/admin/kyc/{{customerId}}/sections/{{section}}/approve",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "kyc", "{{customerId}}", "sections", "{{section}}", "approve"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reject Section",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rejectionReason\": \"Aadhaar document is blurry\",\n  \"rejectedFields\": {\n    \"aadharDocument\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/kyc/{{customerId}}/sections/{{section}}/reject",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "kyc", "{{customerId}}", "sections", "{{section}}", "reject"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reject Entire KYC",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Documents do not match the registered details\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/kyc/{{customerId}}/reject",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "kyc", "{{customerId}}", "reject"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

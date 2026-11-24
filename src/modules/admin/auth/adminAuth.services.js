@@ -1,4 +1,5 @@
 import generateOtp from "../../../utils/generateOtp.js";
+import { sendOtpEmail } from "../../../utils/mailer.js";
 import { comparePassword, hashPassword } from "../../../utils/password.js";
 import {
   generateAccessToken,
@@ -32,17 +33,23 @@ const assertActive = (admin) => {
 const issueOtp = async (account) => {
   const otp = generateOtp();
 
+  if (account.email) {
+    await sendOtpEmail(account.email, otp);
+  }
+
   const otpDoc = await replaceOtp({
     accountId: account._id,
     otp: await hashPassword(otp),
     expiresAt: new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000),
   });
 
+  console.log(otpDoc);
   return toOtpDto(otpDoc, account);
 };
 
 const verifyOtp = async (account, otp, id) => {
   const otpDoc = await findOtpById(id, account._id);
+  console.log(otpDoc);
 
   if (!otpDoc) {
     throw httpError(400, "OTP not found. Request a new OTP");
