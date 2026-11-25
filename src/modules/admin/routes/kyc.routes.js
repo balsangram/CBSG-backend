@@ -48,7 +48,7 @@ const SECTIONS_DOC =
  *         name: status
  *         schema:
  *           type: string
- *           enum: [PENDING, VERIFIED, REJECTED]
+ *           enum: [PENDING, IN_PROGRESS, UNDER_REVIEW, VERIFIED, REJECTED]
  *       - in: query
  *         name: search
  *         schema:

@@ -9,7 +9,13 @@ import { countByStatus, findAll } from "./admin-kyc.repository.js";
 
 const SECTION_KEYS = Object.keys(SECTIONS);
 
-const KYC_STATUSES = ["PENDING", "VERIFIED", "REJECTED"];
+const KYC_STATUSES = [
+  "PENDING",
+  "IN_PROGRESS",
+  "UNDER_REVIEW",
+  "VERIFIED",
+  "REJECTED",
+];
 
 const SORTABLE_FIELDS = ["createdAt", "updatedAt", "status", "verifiedAt"];
 
@@ -69,7 +75,7 @@ const getAllKycs = async (query) => {
     meta.total += row.count;
   }
 
-  meta.pending = meta.PENDING || 0;
+  meta.pending = (meta.PENDING || 0) + (meta.IN_PROGRESS || 0);
   meta.approved = meta.VERIFIED || 0;
   meta.rejected = meta.REJECTED || 0;
 

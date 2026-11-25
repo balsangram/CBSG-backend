@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
-const SECTION_STATUS = ["PENDING", "VERIFIED", "REJECTED"];
+const SECTION_STATUS = [
+  "PENDING",
+  "IN_PROGRESS",
+  "UNDER_REVIEW",
+  "VERIFIED",
+  "REJECTED",
+];
 
 const sectionSchema = (rejectedFieldNames = []) => {
   const definition = {

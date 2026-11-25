@@ -114,7 +114,7 @@ router.post(
  *                       type: string
  *                     status:
  *                       type: string
- *                       enum: [PENDING, VERIFIED, REJECTED]
+ *                       enum: [PENDING, IN_PROGRESS, UNDER_REVIEW, VERIFIED, REJECTED]
  *                       example: PENDING
  *                       description: KYC status for this customer
  */
