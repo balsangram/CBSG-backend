@@ -8,7 +8,7 @@ import customerProfileRoutes from "./customer-profile.routes.js";
 import customerBankRoutes from "./customer-bank.routes.js";
 import { dashboard } from "../transaction/customer-transaction.controller.js";
 import { plans } from "../plans/customer-plan.controller.js";
-import customerTransactionsRoutes from "./customer-transactions.router.js";
+import customerTransactionsRoutes from "./customer-transactions.routes.js";
 
 const router = express.Router();
 

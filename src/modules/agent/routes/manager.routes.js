@@ -5,8 +5,8 @@ import {
   getIncentive,
   getProfile,
 } from "../manager/manager.controller.js";
-import bankRouter from "./bank.router.js";
-import withdrawalRouter from "./withdrawal.router.js";
+import bankRouter from "./bank.routes.js";
+import withdrawalRouter from "./withdrawal.routes.js";
 
 const router = express.Router();
 
