@@ -11,12 +11,15 @@ import {
   deleteById,
   findById,
   findPage,
+  findRecentSavings,
   sumSavings,
+  sumSavingsByCustomerIds,
   updateById,
 } from "./customer.repository.js";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
+const DETAIL_SAVING_LIMIT = 5;
 const MAX_LIMIT = 50;
 
 const httpError = (statusCode, message) => {
@@ -86,11 +89,28 @@ const pageFrom = (query = {}) => {
   };
 };
 
-const getCustomers = async (query) => {
-  const { page, limit } = pageFrom(query);
-  const [customers, total] = await findPage(page, limit);
+const assertAgentSession = (agentId) => {
+  if (!mongoose.Types.ObjectId.isValid(agentId)) {
+    throw httpError(401, "Invalid agent session");
+  }
+};
 
-  return toCustomerPageDto(customers, {
+const assertOwnCustomer = (customer, agentId) => {
+  if (!customer || customer.agentId?.toString() !== agentId.toString()) {
+    throw httpError(404, "Customer not found");
+  }
+};
+
+const getCustomers = async (agentId, query) => {
+  assertAgentSession(agentId);
+
+  const { page, limit } = pageFrom(query);
+  const [customers, total] = await findPage(agentId, page, limit);
+  const balances = await sumSavingsByCustomerIds(
+    customers.map((customer) => customer._id)
+  );
+
+  return toCustomerPageDto(customers, balances, {
     page,
     limit,
     total,
@@ -98,18 +118,35 @@ const getCustomers = async (query) => {
   });
 };
 
-const getCustomerById = async (id) => {
+const getCustomerById = async (agentId, id, query = {}) => {
+  assertAgentSession(agentId);
   assertId(id);
 
   const customer = await findById(id);
+  assertOwnCustomer(customer, agentId);
 
-  if (!customer) {
-    throw httpError(404, "Customer not found");
-  }
+  const page = Number.parseInt(query.page, 10);
+  const limit = Number.parseInt(query.limit, 10);
+  const savingPage = Number.isInteger(page) && page > 0 ? page : DEFAULT_PAGE;
+  const savingLimit =
+    Number.isInteger(limit) && limit > 0
+      ? Math.min(limit, MAX_LIMIT)
+      : DETAIL_SAVING_LIMIT;
 
-  const totalSaved = await sumSavings(customer._id);
+  const [totalSaved, [items, total]] = await Promise.all([
+    sumSavings(customer._id),
+    findRecentSavings(customer._id, savingPage, savingLimit),
+  ]);
 
-  return toCustomerDetailDto(customer, totalSaved);
+  return toCustomerDetailDto(customer, totalSaved, {
+    items,
+    pagination: {
+      page: savingPage,
+      limit: savingLimit,
+      total,
+      totalPages: total === 0 ? 0 : Math.ceil(total / savingLimit),
+    },
+  });
 };
 
 const createCustomer = async (agentId, data, files) => {
@@ -163,15 +200,13 @@ const createCustomer = async (agentId, data, files) => {
   }
 };
 
-const updateCustomer = async (id, data, files) => {
+const updateCustomer = async (agentId, id, data, files) => {
+  assertAgentSession(agentId);
   assertId(id);
   delete data.agentId;
 
   const customer = await findById(id);
-
-  if (!customer) {
-    throw httpError(404, "Customer not found");
-  }
+  assertOwnCustomer(customer, agentId);
 
   const uploads = await uploadDocuments(files);
   blankToNull(data, [
@@ -215,29 +250,27 @@ const updateCustomer = async (id, data, files) => {
   }
 };
 
-const deleteCustomer = async (id) => {
+const deleteCustomer = async (agentId, id) => {
+  assertAgentSession(agentId);
   assertId(id);
 
-  const customer = await deleteById(id);
+  const customer = await findById(id);
+  assertOwnCustomer(customer, agentId);
 
-  if (!customer) {
-    throw httpError(404, "Customer not found");
-  }
+  const deleted = await deleteById(id);
 
   await deleteFiles([
-    customer.photo,
-    customer.aadharDocument,
-    customer.panDocument,
+    deleted.photo,
+    deleted.aadharDocument,
+    deleted.panDocument,
   ]);
 
-  if (customer.agentId) {
-    await adjustTotals(customer.agentId, {
-      customers: -1,
-      saving: -(customer.totalSaving || 0),
-    });
-  }
+  await adjustTotals(agentId, {
+    customers: -1,
+    saving: -(deleted.totalSaving || 0),
+  });
 
-  return toCustomerDto(customer);
+  return toCustomerDto(deleted);
 };
 
 export {

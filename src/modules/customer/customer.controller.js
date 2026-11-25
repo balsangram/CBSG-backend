@@ -9,12 +9,16 @@ import {
 } from "./customer.services.js";
 
 const getCustomers = asyncHandler(async (req, res) => {
-  const data = await getCustomersService(req.query);
+  const data = await getCustomersService(req.user.id, req.query);
   return apiResponse(res, 200, "Customers fetched successfully", data);
 });
 
 const getCustomerById = asyncHandler(async (req, res) => {
-  const data = await getCustomerByIdService(req.params.id);
+  const data = await getCustomerByIdService(
+    req.user.id,
+    req.params.id,
+    req.query
+  );
   return apiResponse(res, 200, "Customer fetched successfully", data);
 });
 
@@ -24,12 +28,17 @@ const createCustomer = asyncHandler(async (req, res) => {
 });
 
 const updateCustomer = asyncHandler(async (req, res) => {
-  const data = await updateCustomerService(req.params.id, req.body, req.files);
+  const data = await updateCustomerService(
+    req.user.id,
+    req.params.id,
+    req.body,
+    req.files
+  );
   return apiResponse(res, 200, "Customer updated successfully", data);
 });
 
 const deleteCustomer = asyncHandler(async (req, res) => {
-  const data = await deleteCustomerService(req.params.id);
+  const data = await deleteCustomerService(req.user.id, req.params.id);
   return apiResponse(res, 200, "Customer deleted successfully", data);
 });
 

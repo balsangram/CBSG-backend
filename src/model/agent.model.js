@@ -80,6 +80,22 @@ const agentSchema = new mongoose.Schema(
             index: true,
         },
 
+        bankName: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        accountNumber: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+        ifscCode: {
+            type: String,
+            trim: true,
+            default: null,
+        },
+
         // Refresh Token
         refreshToken: {
             type: [{ type: String, trim: true }],

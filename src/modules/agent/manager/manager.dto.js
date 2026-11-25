@@ -45,7 +45,6 @@ const toProfileDto = (agent, target) => ({
   role: agent.role,
   status: agent.status,
   branch: toBranchDto(agent.branchId),
-  level: toLevelDto(target),
   target: toTargetDto(target),
   totalCustomer: agent.totalCustomer || 0,
   totalSaving: agent.totalSaving || 0,
@@ -95,4 +94,28 @@ const toIncentiveDto = (months) => {
   };
 };
 
-export { toDashboardDto, toIncentiveDto, toProfileDto };
+const toSavingDto = (item) => ({
+  id: item.id,
+  transactionId: item.transactionId,
+  amount: item.amount,
+  paymentType: item.paymentType || null,
+  status: item.status,
+  paidAt: item.paidAt,
+  customer: {
+    id: item.customer?.id || null,
+    name: item.customer?.name || null,
+    photo: item.customer?.photo || null,
+    phone: item.customer?.phone || null,
+  },
+});
+
+const toBookDto = ({ today, totalCustomer, todayPayments, recent }) => ({
+  todaySaving: today.todaySaving || 0,
+  totalCustomer: totalCustomer || 0,
+  todayCustomerCount: today.todayCustomerCount || 0,
+  todayPayments: (todayPayments || []).map(toSavingDto),
+  recentSavings: (recent.items || []).map(toSavingDto),
+  pagination: recent.pagination,
+});
+
+export { toBookDto, toDashboardDto, toIncentiveDto, toProfileDto };

@@ -1,6 +1,7 @@
 import asyncHandler from "../../../utils/asyncHandler.js";
 import apiResponse from "../../../utils/apiResponse.js";
 import {
+  getBook as getBookService,
   getDashboard as getDashboardService,
   getIncentive as getIncentiveService,
   getProfile as getProfileService,
@@ -21,4 +22,9 @@ const getProfile = asyncHandler(async (req, res) => {
   return apiResponse(res, 200, "Profile fetched successfully", data);
 });
 
-export { getDashboard, getIncentive, getProfile };
+const getBook = asyncHandler(async (req, res) => {
+  const data = await getBookService(req.user.id, req.query);
+  return apiResponse(res, 200, "Book fetched successfully", data);
+});
+
+export { getBook, getDashboard, getIncentive, getProfile };

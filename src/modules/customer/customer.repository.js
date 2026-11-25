@@ -4,12 +4,13 @@ import Transaction from "../../model/transaction.model.js";
 
 const SAVING_STATUSES = ["PENDING", "PROCESSING", "COMPLETED"];
 
-const findPage = (page, limit) => {
+const findPage = (agentId, page, limit) => {
   const skip = (page - 1) * limit;
+  const filter = { agentId };
 
   return Promise.all([
-    Customer.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-    Customer.countDocuments(),
+    Customer.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Customer.countDocuments(filter),
   ]);
 };
 
@@ -41,4 +42,50 @@ const sumSavings = async (customerId) => {
   return row?.total || 0;
 };
 
-export { findPage, findById, create, updateById, deleteById, sumSavings };
+const sumSavingsByCustomerIds = async (customerIds) => {
+  if (!customerIds.length) return new Map();
+
+  const rows = await Transaction.aggregate([
+    {
+      $match: {
+        userId: {
+          $in: customerIds.map((id) => new mongoose.Types.ObjectId(id)),
+        },
+        type: "SAVING",
+        status: { $in: SAVING_STATUSES },
+      },
+    },
+    { $group: { _id: "$userId", total: { $sum: "$amount" } } },
+  ]);
+
+  return new Map(rows.map((row) => [row._id.toString(), row.total]));
+};
+
+const findRecentSavings = (customerId, page, limit) => {
+  const skip = (page - 1) * limit;
+  const filter = {
+    userId: customerId,
+    type: "SAVING",
+    status: { $in: SAVING_STATUSES },
+  };
+
+  return Promise.all([
+    Transaction.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("transactionId amount paymentType status createdAt"),
+    Transaction.countDocuments(filter),
+  ]);
+};
+
+export {
+  findPage,
+  findById,
+  create,
+  updateById,
+  deleteById,
+  sumSavings,
+  sumSavingsByCustomerIds,
+  findRecentSavings,
+};

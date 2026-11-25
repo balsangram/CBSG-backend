@@ -16,6 +16,14 @@ const incentiveSchema = new mongoose.Schema(
       index: true,
     },
 
+    // Manager under the team lead who earned the related incentive. Null for the manager's own share.
+    fromAgentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Agent",
+      default: null,
+      index: true,
+    },
+
     amount: {
       type: Number,
       required: [true, "Incentive amount is required"],
@@ -29,6 +37,7 @@ const incentiveSchema = new mongoose.Schema(
 );
 
 incentiveSchema.index({ agentId: 1, customerId: 1 });
+incentiveSchema.index({ agentId: 1, fromAgentId: 1 });
 
 const Incentive = mongoose.model("Incentive", incentiveSchema);
 

@@ -18,7 +18,7 @@ const customerHelpSupport = {
     {
       question: "How does KYC verification work?",
       answer:
-        "Mark each section as done from KYC. When every section is done, the status moves to under review. Support will update it after verification.",
+        "Mark each section as done from KYC. Support verifies each section. When every section is verified, KYC becomes verified.",
     },
     {
       question: "I did not receive the login OTP. What should I do?",

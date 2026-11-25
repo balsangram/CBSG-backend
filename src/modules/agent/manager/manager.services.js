@@ -1,13 +1,26 @@
 import mongoose from "mongoose";
-import { toDashboardDto, toIncentiveDto, toProfileDto } from "./manager.dto.js";
 import {
+  toBookDto,
+  toDashboardDto,
+  toIncentiveDto,
+  toProfileDto,
+} from "./manager.dto.js";
+import {
+  countCustomers,
   findActiveTarget,
   findAgent,
+  findRecentSavings,
+  findTodayPayments,
   findTodayPayers,
   sumIncentives,
   summarizeCustomers,
   summarizeIncentives,
+  summarizeTodaySavings,
 } from "./manager.repository.js";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
 
 const httpError = (statusCode, message) => {
   const error = new Error(message);
@@ -74,4 +87,48 @@ const getIncentive = async (agentId) => {
   return toIncentiveDto(months);
 };
 
-export { getDashboard, getIncentive, getProfile };
+const pageFrom = (query = {}) => {
+  const page = Number.parseInt(query.page, 10);
+  const limit = Number.parseInt(query.limit, 10);
+
+  return {
+    page: Number.isInteger(page) && page > 0 ? page : DEFAULT_PAGE,
+    limit:
+      Number.isInteger(limit) && limit > 0
+        ? Math.min(limit, MAX_LIMIT)
+        : DEFAULT_LIMIT,
+  };
+};
+
+const getBook = async (agentId, query) => {
+  await loadAgent(agentId);
+
+  const { page, limit } = pageFrom(query);
+  const [todayRows, totalCustomer, todayPayments, recentRows] =
+    await Promise.all([
+      summarizeTodaySavings(agentId),
+      countCustomers(agentId),
+      findTodayPayments(agentId),
+      findRecentSavings(agentId, page, limit),
+    ]);
+
+  const recent = recentRows[0] || { items: [], total: [] };
+  const total = recent.total?.[0]?.count || 0;
+
+  return toBookDto({
+    today: todayRows[0] || { todaySaving: 0, todayCustomerCount: 0 },
+    totalCustomer,
+    todayPayments,
+    recent: {
+      items: recent.items || [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+      },
+    },
+  });
+};
+
+export { getBook, getDashboard, getIncentive, getProfile };

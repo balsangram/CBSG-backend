@@ -5,6 +5,8 @@ import {
   getIncentive,
   getProfile,
 } from "../manager/manager.controller.js";
+import bankRouter from "./bank.router.js";
+import withdrawalRouter from "./withdrawal.router.js";
 
 const router = express.Router();
 
@@ -67,5 +69,8 @@ router.get("/Incentive", getIncentive);
  *         description: Profile for the logged-in agent
  */
 router.get("/profile", getProfile);
+
+router.use("/bank", bankRouter);
+router.use("/withdrawal", withdrawalRouter);
 
 export default router;

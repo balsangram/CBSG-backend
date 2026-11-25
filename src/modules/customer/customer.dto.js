@@ -31,16 +31,45 @@ const toCustomerDto = (customer) => ({
   joiningDate: customer.joiningDate,
 });
 
-const toCustomerDetailDto = (customer, totalSaved) => ({
-  ...toCustomerDto(customer),
-  totalDays: daysFromJoining(customer.joiningDate),
-  totalSaved,
+const toSavingDto = (saving) => ({
+  id: saving._id,
+  transactionId: saving.transactionId,
+  amount: saving.amount,
+  paymentType: saving.paymentType || null,
+  status: saving.status,
+  paidAt: saving.createdAt,
 });
 
-const toCustomerListDto = (customers) => customers.map(toCustomerDto);
+const toCustomerDetailDto = (customer, totalSaved, recent) => ({
+  ...toCustomerDto(customer),
+  address: customer.address || null,
+  pinCode: customer.pinCode || null,
+  bank: {
+    bankName: customer.bankName || null,
+    accountNumber: customer.accountNumber || null,
+    ifscCode: customer.ifscCode || null,
+  },
+  totalDays: daysFromJoining(customer.joiningDate),
+  totalSaved,
+  recentSavings: (recent?.items || []).map(toSavingDto),
+  pagination: recent?.pagination || {
+    page: 1,
+    limit: 5,
+    total: 0,
+    totalPages: 0,
+  },
+});
 
-const toCustomerPageDto = (customers, pagination) => ({
-  customers: toCustomerListDto(customers),
+const toCustomerListDto = (customer, balance = 0) => ({
+  ...toCustomerDto(customer),
+  totalDays: daysFromJoining(customer.joiningDate),
+  balance,
+});
+
+const toCustomerPageDto = (customers, balances, pagination) => ({
+  customers: customers.map((customer) =>
+    toCustomerListDto(customer, balances.get(customer._id.toString()) || 0)
+  ),
   pagination,
 });
 

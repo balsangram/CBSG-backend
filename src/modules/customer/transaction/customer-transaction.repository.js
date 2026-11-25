@@ -139,6 +139,7 @@ const recordSavingIncentives = async (customerId, amount) => {
     {
       agentId: manager._id,
       customerId,
+      fromAgentId: null,
       amount: shareOf(amount, MANAGER_SHARE),
     },
   ];
@@ -153,6 +154,7 @@ const recordSavingIncentives = async (customerId, amount) => {
       records.push({
         agentId: teamLead._id,
         customerId,
+        fromAgentId: manager._id,
         amount: shareOf(amount, TEAM_LEAD_SHARE),
       });
     }

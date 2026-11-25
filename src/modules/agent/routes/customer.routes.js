@@ -52,7 +52,7 @@ router.use(authMiddleware, agentOnly);
  * /agent/customers:
  *   get:
  *     summary: List customers
- *     description: Returns customers newest first. page defaults to 1 and limit defaults to 10, with a maximum of 50.
+ *     description: Returns only customers created by the logged-in agent, newest first. Each customer includes totalDays from joining date through today, and balance from saving transactions only. page defaults to 1 and limit defaults to 10, with a maximum of 50.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []
@@ -89,6 +89,8 @@ router.use(authMiddleware, agentOnly);
  *                       photo: null
  *                       agentId: 6741a0c2e1b2c3d4e5f60711
  *                       joiningDate: 2026-01-15T00:00:00.000Z
+ *                       totalDays: 314
+ *                       balance: 7130
  *                   pagination:
  *                     page: 1
  *                     limit: 10
@@ -159,7 +161,7 @@ router.get("/", getCustomers);
  * /agent/customers/{id}:
  *   get:
  *     summary: Get a customer
- *     description: Includes totalDays from the joining date through today, and totalSaved from saving transactions only. Withdrawals are not included.
+ *     description: Includes address, bank details, totalDays from the joining date through today, totalSaved from saving transactions only, and recent savings with pagination. page defaults to 1 and limit defaults to 5.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []
@@ -169,9 +171,22 @@ router.get("/", getCustomers);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 5
  *     responses:
  *       200:
- *         description: Customer
+ *         description: Customer with address, bank details, and recent savings
  *       404:
  *         description: Customer not found
  *   patch:

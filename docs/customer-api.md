@@ -191,7 +191,7 @@ Refresh token and FCM token are optional query parameters. A token is removed fr
 
 Creates a pending KYC record the first time it is requested.
 
-Each section has `status` and `rejectionReason`. Every section except `photo` also has `rejectedFields`. Section `status` is one of `PENDING`, `IN_PROGRESS`, `UNDER_REVIEW`, `VERIFIED`, `REJECTED`. The top-level `status` uses the same values.
+Each section has `status` and `rejectionReason`. Every section except `photo` also has `rejectedFields`. Section `status` is one of `PENDING`, `VERIFIED`, `REJECTED`. The top-level `status` uses the same values.
 
 Rejected field names:
 
@@ -293,7 +293,7 @@ Rejected field names:
 
 Send one or more section objects. A section can include `status`, `rejectionReason`, and `rejectedFields`. `photo` has no `rejectedFields`.
 
-The top-level `status` is `VERIFIED` when every section is verified, `REJECTED` when any section is rejected, `UNDER_REVIEW` when every section is under review or verified, and `IN_PROGRESS` when only some sections have moved past pending.
+The top-level `status` is `VERIFIED` when every section is verified, `REJECTED` when any section is rejected, and `PENDING` otherwise.
 
 `VERIFIED` and `REJECTED` records cannot be updated.
 

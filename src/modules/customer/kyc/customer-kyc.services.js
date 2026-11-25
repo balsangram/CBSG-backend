@@ -56,13 +56,7 @@ const statusFor = (sections) => {
 
   if (statuses.every((status) => status === "VERIFIED")) return "VERIFIED";
   if (statuses.some((status) => status === "REJECTED")) return "REJECTED";
-  if (
-    statuses.every((status) => status === "UNDER_REVIEW" || status === "VERIFIED")
-  ) {
-    return "UNDER_REVIEW";
-  }
-  if (statuses.every((status) => status === "PENDING")) return "PENDING";
-  return "IN_PROGRESS";
+  return "PENDING";
 };
 
 const getOrCreateKyc = async (customerId) => {
