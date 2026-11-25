@@ -14,7 +14,7 @@ const router = express.Router();
  * /customer/transactions/saving:
  *   post:
  *     summary: Send a saving to admin
- *     description: Creates a pending SAVING transaction. Amount is required. Type is not sent.
+ *     description: Creates a pending SAVING transaction. Amount is required. Type is not sent. The customer's manager receives 10 percent as incentive. The team lead above that manager receives 5 percent when one is assigned.
  *     tags: [Customer Pay]
  *     security:
  *       - BearerAuth: []

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../utils/s3.js";
-import { toCustomerDto, toCustomerPageDto } from "./customer.dto.js";
+import { toCustomerDetailDto, toCustomerDto, toCustomerPageDto } from "./customer.dto.js";
 import { applyBankFields } from "./bank/customer-bank.dto.js";
 import {
   adjustTotals,
@@ -11,6 +11,7 @@ import {
   deleteById,
   findById,
   findPage,
+  sumSavings,
   updateById,
 } from "./customer.repository.js";
 
@@ -106,7 +107,9 @@ const getCustomerById = async (id) => {
     throw httpError(404, "Customer not found");
   }
 
-  return toCustomerDto(customer);
+  const totalSaved = await sumSavings(customer._id);
+
+  return toCustomerDetailDto(customer, totalSaved);
 };
 
 const createCustomer = async (agentId, data, files) => {

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import Agent from "../../../model/agent.model.js";
 import Customer from "../../../model/customer.model.js";
+import Incentive from "../../../model/incentive.model.js";
 import Interest from "../../../model/Interest.model.js";
 import Transaction from "../../../model/transaction.model.js";
 import { adjustTotals } from "../../agent/agent.repository.js";
@@ -119,12 +121,53 @@ const findTransactions = (customerId, page, limit) => {
 
 const createTransaction = (data) => Transaction.create(data);
 
+const MANAGER_SHARE = 0.1;
+const TEAM_LEAD_SHARE = 0.05;
+
+const shareOf = (amount, rate) => Math.round(amount * rate * 100) / 100;
+
+const recordSavingIncentives = async (customerId, amount) => {
+  const customer = await Customer.findById(customerId).select("agentId");
+
+  if (!customer?.agentId) return;
+
+  const manager = await Agent.findById(customer.agentId).select("teamLeadId");
+
+  if (!manager) return;
+
+  const records = [
+    {
+      agentId: manager._id,
+      customerId,
+      amount: shareOf(amount, MANAGER_SHARE),
+    },
+  ];
+
+  if (manager.teamLeadId) {
+    const teamLead = await Agent.findOne({
+      _id: manager.teamLeadId,
+      role: "team_lead",
+    }).select("_id");
+
+    if (teamLead) {
+      records.push({
+        agentId: teamLead._id,
+        customerId,
+        amount: shareOf(amount, TEAM_LEAD_SHARE),
+      });
+    }
+  }
+
+  await Incentive.insertMany(records);
+};
+
 const findInterestByCustomerId = (customerId) => {
   return Interest.findOne({ userId: customerId }).select("interest");
 };
 
 export {
   createTransaction,
+  recordSavingIncentives,
   findCustomerById,
   findInterestByCustomerId,
   findRecentTransactions,

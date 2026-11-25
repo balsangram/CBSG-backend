@@ -10,6 +10,7 @@ const toAgentDto = (agent) => ({
   levelModel: agent.levelModel || null,
   branchId: agent.branchId || null,
   targetId: agent.targetId || null,
+  teamLeadId: agent.teamLeadId || null,
   status: agent.status,
   totalCustomer: agent.totalCustomer || 0,
   totalSaving: agent.totalSaving || 0,

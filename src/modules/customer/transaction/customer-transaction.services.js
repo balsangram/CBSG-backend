@@ -4,6 +4,7 @@ import { toDashboardDto, toTransactionDto, toTransactionPageDto } from "./custom
 import { findKycByUserId } from "../../kyc/kyc.repositories.js";
 import {
   createTransaction,
+  recordSavingIncentives,
   findCustomerById,
   findInterestByCustomerId,
   findRecentTransactions,
@@ -106,6 +107,10 @@ const sendAmount = async (
     status: "PENDING",
     paymentType,
   });
+
+  if (type === "SAVING") {
+    await recordSavingIncentives(customerId, amount);
+  }
 
   return toTransactionDto(transaction);
 };

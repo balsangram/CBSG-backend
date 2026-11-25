@@ -24,6 +24,7 @@ const status = Joi.string().valid("active", "inactive", "blocked");
 const levelId = Joi.string().trim().hex().length(24).allow(null);
 const branchId = Joi.string().trim().hex().length(24).allow(null);
 const targetId = Joi.string().trim().hex().length(24).allow(null);
+const teamLeadId = Joi.string().trim().hex().length(24).allow(null);
 const photo = Joi.string().trim().allow(null, "");
 
 export const createAgentSchema = Joi.object({
@@ -35,6 +36,7 @@ export const createAgentSchema = Joi.object({
   levelId,
   branchId,
   targetId,
+  teamLeadId,
   status,
 });
 
@@ -47,6 +49,7 @@ export const updateAgentSchema = Joi.object({
   levelId,
   branchId,
   targetId,
+  teamLeadId,
   status,
 }).min(1).messages({
   "object.min": "At least one field is required",

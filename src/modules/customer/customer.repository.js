@@ -1,4 +1,8 @@
+import mongoose from "mongoose";
 import Customer from "../../model/customer.model.js";
+import Transaction from "../../model/transaction.model.js";
+
+const SAVING_STATUSES = ["PENDING", "PROCESSING", "COMPLETED"];
 
 const findPage = (page, limit) => {
   const skip = (page - 1) * limit;
@@ -22,4 +26,19 @@ const updateById = (id, data) => {
 
 const deleteById = (id) => Customer.findByIdAndDelete(id);
 
-export { findPage, findById, create, updateById, deleteById };
+const sumSavings = async (customerId) => {
+  const [row] = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(customerId),
+        type: "SAVING",
+        status: { $in: SAVING_STATUSES },
+      },
+    },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+
+  return row?.total || 0;
+};
+
+export { findPage, findById, create, updateById, deleteById, sumSavings };

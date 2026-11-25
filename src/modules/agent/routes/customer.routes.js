@@ -159,6 +159,7 @@ router.get("/", getCustomers);
  * /agent/customers/{id}:
  *   get:
  *     summary: Get a customer
+ *     description: Includes totalDays from the joining date through today, and totalSaved from saving transactions only. Withdrawals are not included.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []

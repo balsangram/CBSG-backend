@@ -86,6 +86,14 @@ const agentSchema = new mongoose.Schema(
             default: null,
         },
 
+        // Team lead this manager reports to
+        teamLeadId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Agent",
+            default: null,
+            index: true,
+        },
+
         // Refresh Token
         refreshToken: {
             type: [{ type: String, trim: true }],

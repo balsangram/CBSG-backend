@@ -69,6 +69,9 @@ router.use(authMiddleware, adminOnly);
  *                 type: string
  *               targetId:
  *                 type: string
+ *               teamLeadId:
+ *                 type: string
+ *                 description: Team lead this manager reports to. Optional.
  *               photo:
  *                 type: string
  *                 format: binary
@@ -131,6 +134,9 @@ router.get("/", getAllAgents);
  *                 type: string
  *               targetId:
  *                 type: string
+ *               teamLeadId:
+ *                 type: string
+ *                 description: Team lead this manager reports to. Optional.
  *               photo:
  *                 type: string
  *                 format: binary

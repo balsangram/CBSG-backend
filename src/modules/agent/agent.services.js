@@ -60,6 +60,16 @@ const assertTarget = async (targetId) => {
   }
 };
 
+const assertTeamLead = async (teamLeadId) => {
+  if (!teamLeadId) return;
+
+  const lead = await findById(teamLeadId);
+
+  if (!lead || lead.role !== "team_lead") {
+    throw httpError(404, "Team lead not found");
+  }
+};
+
 const handleDuplicate = (error) => {
   if (error?.code !== 11000) throw error;
 
@@ -94,6 +104,7 @@ const createAgent = async (data, file) => {
   await assertLevel(role, data.levelId);
   await assertBranch(data.branchId);
   await assertTarget(data.targetId);
+  await assertTeamLead(data.teamLeadId);
 
   const photo = file ? await uploadToS3(file, "agents") : data.photo || null;
 
@@ -132,9 +143,12 @@ const updateAgent = async (id, data, file) => {
   const levelId = data.levelId === undefined ? agent.levelId : data.levelId;
   const branchId = data.branchId === undefined ? agent.branchId : data.branchId;
   const targetId = data.targetId === undefined ? agent.targetId : data.targetId;
+  const teamLeadId =
+    data.teamLeadId === undefined ? agent.teamLeadId : data.teamLeadId;
   await assertLevel(role, levelId);
   await assertBranch(branchId);
   await assertTarget(targetId);
+  await assertTeamLead(teamLeadId);
 
   const photo = file ? await uploadToS3(file, "agents") : undefined;
 

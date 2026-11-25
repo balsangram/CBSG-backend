@@ -4,6 +4,7 @@ import {
   findActiveTarget,
   findAgent,
   findTodayPayers,
+  sumIncentives,
   summarizeCustomers,
   summarizeIncentives,
 } from "./manager.repository.js";
@@ -47,16 +48,20 @@ const getProfile = async (agentId) => {
 
 const getDashboard = async (agentId) => {
   const agent = await loadAgent(agentId);
-  const [target, summaryRows, todayRows] = await Promise.all([
+  const [target, summaryRows, incentiveRows, todayRows] = await Promise.all([
     resolveTarget(agent),
     summarizeCustomers(agentId),
+    sumIncentives(agentId),
     findTodayPayers(agentId),
   ]);
 
   const summary = summaryRows[0] || { totalCustomer: 0, totalAmount: 0 };
   const today = todayRows[0] || { customers: [], total: [] };
 
-  return toDashboardDto(agent, target, summary, {
+  return toDashboardDto(agent, target, {
+    ...summary,
+    incentive: incentiveRows[0]?.total || 0,
+  }, {
     count: today.total?.[0]?.count || 0,
     customers: today.customers || [],
   });

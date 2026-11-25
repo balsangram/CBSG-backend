@@ -26,7 +26,7 @@ router.use(authMiddleware, agentOnly);
  * /agent/dashboard:
  *   get:
  *     summary: Manager dashboard
- *     description: Branch name, photo, employee id, level with customer and savings totals, incentive, and up to 4 customers who paid today.
+ *     description: Branch name, photo, employee id, full level details, total incentive earned, total customers, total amount those customers have paid, and up to 4 customers who paid today.
  *     tags: [Agent]
  *     security:
  *       - BearerAuth: []
