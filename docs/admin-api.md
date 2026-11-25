@@ -81,6 +81,6 @@ A plan is a savings scheme: name, type, minimum amount, payout, monthly interest
 | Method | Path | Purpose |
 |---|---|---|
 | `GET` | `/api/v1/admin/targets` | List level targets, newest first. |
-| `POST` | `/api/v1/admin/targets` | Create a target: name, savings amount, customer count, price, level number such as `L1`, and role. |
+| `POST` | `/api/v1/admin/targets` | Create a target: name, savings amount, customer count, prize, level number such as `L1`, and role. |
 | `PATCH` | `/api/v1/admin/targets/:id` | Update that target. |
 | `DELETE` | `/api/v1/admin/targets/:id` | Delete that target. |

@@ -16,7 +16,7 @@ const toLevelDto = (target) => {
     name: target.name,
     amount: target.amount,
     customerCount: target.customer,
-    priceString: target.price == null ? null : String(target.price),
+    prize: target.prize || null,
     status: target.isActive === false ? "inactive" : "active",
   };
 };
@@ -29,7 +29,7 @@ const toTargetDto = (target) => {
     name: target.name,
     amount: target.amount,
     customer: target.customer,
-    price: target.price,
+    prize: target.prize,
     levelNo: target.levelNo ?? null,
     role: target.role,
   };
@@ -72,7 +72,7 @@ const toDashboardDto = (agent, target, summary, today) => {
       name: level?.name || null,
       amount: level?.amount || 0,
       customerCount: level?.customerCount || 0,
-      priceString: level?.priceString || null,
+      prize: level?.prize || null,
       status: level?.status || null,
       totalCustomer: summary.totalCustomer || 0,
       totalAmount: summary.totalAmount || 0,

@@ -3,7 +3,7 @@ const toTargetDto = (target) => ({
   name: target.name,
   amount: target.amount,
   customer: target.customer,
-  price: target.price,
+  prize: target.prize,
   levelNo: target.levelNo,
   role: target.role,
   isActive: target.isActive,

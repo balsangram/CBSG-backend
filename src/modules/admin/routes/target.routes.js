@@ -39,7 +39,7 @@ router.use(authMiddleware, adminOnly);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, amount, customer, price, levelNo, role]
+ *             required: [name, amount, customer, prize, levelNo, role]
  *             properties:
  *               name:
  *                 type: string
@@ -47,8 +47,8 @@ router.use(authMiddleware, adminOnly);
  *                 type: number
  *               customer:
  *                 type: integer
- *               price:
- *                 type: number
+ *               prize:
+ *                 type: string
  *               levelNo:
  *                 type: string
  *                 example: L1
@@ -91,8 +91,8 @@ router.post("/", validateMiddleware(createTargetSchema), createTarget);
  *                 type: number
  *               customer:
  *                 type: integer
- *               price:
- *                 type: number
+ *               prize:
+ *                 type: string
  *               levelNo:
  *                 type: string
  *                 example: L1

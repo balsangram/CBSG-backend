@@ -17,10 +17,10 @@ const targetSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    price: {
-      type: Number,
+    prize: {
+      type: String,
       required: true,
-      min: 0,
+      trim: true,
     },
     levelNo: {
       type: String,

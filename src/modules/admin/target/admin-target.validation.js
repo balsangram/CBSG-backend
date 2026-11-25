@@ -18,9 +18,9 @@ const customer = Joi.number().integer().min(0).required().messages({
   "number.integer": "Customer must be a whole number",
 });
 
-const price = Joi.number().min(0).required().messages({
-  "any.required": "Price is required",
-  "number.min": "Price cannot be negative",
+const prize = Joi.string().trim().min(1).max(40).required().messages({
+  "any.required": "Prize is required",
+  "string.min": "Prize is required",
 });
 
 const levelNo = Joi.string()
@@ -47,7 +47,7 @@ export const createTargetSchema = Joi.object({
   name,
   amount,
   customer,
-  price,
+  prize,
   levelNo,
   role,
   isActive,
@@ -57,7 +57,7 @@ export const updateTargetSchema = Joi.object({
   name: name.optional(),
   amount: amount.optional(),
   customer: customer.optional(),
-  price: price.optional(),
+  prize: prize.optional(),
   levelNo: levelNo.optional(),
   role: role.optional(),
   isActive,

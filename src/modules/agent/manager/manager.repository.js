@@ -34,7 +34,7 @@ const istDayWindow = () => {
 const findAgent = async (id) => {
   const agent = await Agent.findById(id)
     .populate("branchId", "name city")
-    .populate("targetId", "name amount customer price levelNo role isActive");
+    .populate("targetId", "name amount customer prize levelNo role isActive");
 
   if (agent) await assignEmployeeId(agent);
 
