@@ -98,17 +98,20 @@ const sendAmount = async (
     }
   }
 
+  const isSaving = type === "SAVING";
+
   const transaction = await createTransaction({
     userId: customerId,
     transactionId: `TXN${Date.now()}${randomBytes(3).toString("hex").toUpperCase()}`,
     type,
     amount,
     currency: "INR",
-    status: "PENDING",
+    status: isSaving ? "COMPLETED" : "PENDING",
     paymentType,
+    completedAt: isSaving ? new Date() : null,
   });
 
-  if (type === "SAVING") {
+  if (isSaving) {
     await recordSavingIncentives(customerId, amount);
   }
 

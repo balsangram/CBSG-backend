@@ -658,7 +658,7 @@ Transaction `type` is `SAVING` or `WITHDRAWAL`.
 
 `POST /api/v1/customer/transactions/saving`
 
-Creates a pending `SAVING` transaction. Do not send `type`.
+Creates a completed `SAVING` transaction. Do not send `type`.
 
 ### Body
 

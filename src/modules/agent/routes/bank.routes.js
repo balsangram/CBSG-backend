@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../../../middlewares/auth.middleware.js";
 import validateMiddleware from "../../../middlewares/validate.middleware.js";
 import {
   saveBankSchema,
@@ -13,9 +14,22 @@ import {
 
 const router = express.Router();
 
+const agentOnly = (req, res, next) => {
+  if (req.user?.accountModel !== "Agent") {
+    return res.status(403).json({
+      success: false,
+      message: "Agent access required",
+    });
+  }
+
+  next();
+};
+
+router.use(authMiddleware, agentOnly);
+
 /**
  * @swagger
- * /agent/manager/bank:
+ * /agent/bank:
  *   get:
  *     summary: Get the logged-in agent's bank account
  *     description: Works for executive_manager and team_lead. Bank fields are stored on the agent.

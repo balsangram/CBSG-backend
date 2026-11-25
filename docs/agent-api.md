@@ -46,10 +46,10 @@ Bank details are stored on the agent. Both `executive_manager` and `team_lead` u
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/api/v1/agent/manager/bank` | Get the logged-in agent's bank name, account number, and IFSC code. |
-| `POST` | `/api/v1/agent/manager/bank` | Save bank details. Fails with `409` if they already exist. |
-| `PATCH` | `/api/v1/agent/manager/bank` | Update one or more bank fields. |
-| `DELETE` | `/api/v1/agent/manager/bank` | Clear bank details. |
+| `GET` | `/api/v1/agent/bank` | Get the logged-in agent's bank name, account number, and IFSC code. |
+| `POST` | `/api/v1/agent/bank` | Save bank details. Fails with `409` if they already exist. |
+| `PATCH` | `/api/v1/agent/bank` | Update one or more bank fields. |
+| `DELETE` | `/api/v1/agent/bank` | Clear bank details. |
 
 ## Withdrawal
 

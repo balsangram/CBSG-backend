@@ -5,7 +5,6 @@ import {
   getIncentive,
   getProfile,
 } from "../manager/manager.controller.js";
-import bankRouter from "./bank.routes.js";
 import withdrawalRouter from "./withdrawal.routes.js";
 
 const router = express.Router();
@@ -70,7 +69,6 @@ router.get("/Incentive", getIncentive);
  */
 router.get("/profile", getProfile);
 
-router.use("/bank", bankRouter);
 router.use("/withdrawal", withdrawalRouter);
 
 export default router;
