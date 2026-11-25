@@ -32,7 +32,7 @@ const targetSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["ExecutiveManagerLevel", "TeamLeadLevel"],
+      enum: ["EXECUTIVE_MANAGER", "TEAM_LEAD"],
     },
     isActive: {
       type: Boolean,

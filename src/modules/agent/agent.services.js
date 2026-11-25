@@ -120,11 +120,28 @@ const updateAgent = async (id, data, file) => {
 
   const branchId = data.branchId === undefined ? agent.branchId : data.branchId;
   const targetId = data.targetId === undefined ? agent.targetId : data.targetId;
-  const teamLeadId =
+  let teamLeadId =
     data.teamLeadId === undefined ? agent.teamLeadId : data.teamLeadId;
+
+  // Hierarchy rules:
+  // - team_lead never reports to another agent
+  // - executive_manager must report to a team lead
+  // - an agent can never report to itself
+  if (role === "team_lead") {
+    teamLeadId = null;
+  } else if (role === "executive_manager" && !teamLeadId) {
+    throw httpError(400, "Executive manager must report to a team lead");
+  }
+
+  if (teamLeadId && String(teamLeadId) === String(id)) {
+    throw httpError(400, "An agent cannot report to themselves");
+  }
+
   await assertBranch(branchId);
   await assertTarget(targetId);
   await assertTeamLead(teamLeadId);
+
+  data.teamLeadId = teamLeadId;
 
   const photo = file ? await uploadToS3(file, "agents") : undefined;
 

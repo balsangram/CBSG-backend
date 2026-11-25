@@ -1,11 +1,11 @@
-
-import admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getMessaging } from "firebase-admin/messaging";
 import env from "./env.js";
 
 const initializeFirebase = () => {
   try {
-    if (admin.apps.length > 0) {
-      return admin;
+    if (getApps().length > 0) {
+      return getMessaging();
     }
 
     if (
@@ -23,19 +23,20 @@ const initializeFirebase = () => {
       privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
     };
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+    const app = initializeApp({
+      credential: cert(serviceAccount),
     });
 
     console.log("Firebase Admin initialized successfully");
 
-    return admin;
+    return getMessaging(app);
   } catch (error) {
     console.error("Firebase initialization failed:", error.message);
-    throw error;
+    return null;
   }
 };
 
-const firebaseAdmin = initializeFirebase();
+const messaging = initializeFirebase();
 
-export default firebaseAdmin;
+export { messaging };
+export default messaging;

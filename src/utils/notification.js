@@ -1,5 +1,5 @@
 
-import admin from "../config/firebase.js";
+import messaging from "../config/firebase.js";
 
 const sendNotification = async ({
   token,
@@ -26,7 +26,11 @@ const sendNotification = async ({
       ),
     };
 
-    const response = await admin.messaging().send(message);
+    if (!messaging) {
+      throw new Error("Firebase is not configured. FCM is disabled.");
+    }
+
+    const response = await messaging.send(message);
 
     return {
       success: true,

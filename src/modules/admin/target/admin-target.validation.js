@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const ROLES = ["EXECUTIVE_MANAGER", "TEAM_LEAD", "MANAGER"];
+const ROLES = ["EXECUTIVE_MANAGER", "TEAM_LEAD"];
 
 const name = Joi.string().trim().min(2).max(80).required().messages({
   "any.required": "Name is required",
@@ -38,7 +38,7 @@ const role = Joi.string()
   .required()
   .messages({
     "any.required": "Role is required",
-    "any.only": "Role must be EXECUTIVE_MANAGER, TEAM_LEAD, or MANAGER",
+    "any.only": "Role must be EXECUTIVE_MANAGER or TEAM_LEAD",
   });
 
 const isActive = Joi.boolean();
