@@ -1,10 +1,8 @@
 import mongoose from "mongoose";
 import Agent, { assignEmployeeId } from "../../../model/agent.model.js";
 import Customer from "../../../model/customer.model.js";
-import ExecutiveManagerLevel from "../../../model/executiveManagerLevel.model.js";
 import Incentive from "../../../model/incentive.model.js";
 import Target from "../../../model/target.model.js";
-import TeamLeadLevel from "../../../model/teamLeadLevel.model.js";
 import Transaction from "../../../model/transaction.model.js";
 
 const TODAY_LIMIT = 4;
@@ -33,29 +31,10 @@ const istDayWindow = () => {
   };
 };
 
-const levelModelFor = (agent) => {
-  if (agent.levelModel === "TeamLeadLevel" || agent.role === "team_lead") {
-    return TeamLeadLevel;
-  }
-
-  return ExecutiveManagerLevel;
-};
-
 const findAgent = async (id) => {
   const agent = await Agent.findById(id)
     .populate("branchId", "name city")
-    .populate({
-      path: "levelId",
-      select: "name amount customerCount priceString status",
-    })
     .populate("targetId", "name amount customer price levelNo role isActive");
-
-  if (agent?.levelId && !agent.levelId?.name) {
-    const Level = levelModelFor(agent);
-    agent.levelId = await Level.findById(agent.levelId).select(
-      "name amount customerCount priceString status"
-    );
-  }
 
   if (agent) await assignEmployeeId(agent);
 

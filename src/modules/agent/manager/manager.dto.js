@@ -8,16 +8,16 @@ const toBranchDto = (branch) => {
   };
 };
 
-const toLevelDto = (level) => {
-  if (!level?._id) return null;
+const toLevelDto = (target) => {
+  if (!target?._id) return null;
 
   return {
-    id: level._id,
-    name: level.name,
-    amount: level.amount,
-    customerCount: level.customerCount,
-    priceString: level.priceString || null,
-    status: level.status || null,
+    id: target._id,
+    name: target.name,
+    amount: target.amount,
+    customerCount: target.customer,
+    priceString: target.price == null ? null : String(target.price),
+    status: target.isActive === false ? "inactive" : "active",
   };
 };
 
@@ -45,7 +45,7 @@ const toProfileDto = (agent, target) => ({
   role: agent.role,
   status: agent.status,
   branch: toBranchDto(agent.branchId),
-  level: toLevelDto(agent.levelId),
+  level: toLevelDto(target),
   target: toTargetDto(target),
   totalCustomer: agent.totalCustomer || 0,
   totalSaving: agent.totalSaving || 0,
@@ -61,7 +61,7 @@ const toTodayCustomerDto = (customer) => ({
 });
 
 const toDashboardDto = (agent, target, summary, today) => {
-  const level = toLevelDto(agent.levelId);
+  const level = toLevelDto(target);
 
   return {
     photo: agent.photo || null,

@@ -7,7 +7,6 @@ import {
   findAll,
   findBranch,
   findById,
-  findLevel,
   findTarget,
   updateById,
 } from "./agent.repository.js";
@@ -21,22 +20,6 @@ const httpError = (statusCode, message) => {
 const assertId = (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw httpError(400, "Invalid agent id");
-  }
-};
-
-const levelModelFor = (role) => {
-  return role === "executive_manager"
-    ? "ExecutiveManagerLevel"
-    : "TeamLeadLevel";
-};
-
-const assertLevel = async (role, levelId) => {
-  if (!levelId) return;
-
-  const level = await findLevel(role, levelId);
-
-  if (!level) {
-    throw httpError(404, "Level not found");
   }
 };
 
@@ -101,7 +84,7 @@ const getAgentById = async (id) => {
 
 const createAgent = async (data, file) => {
   const role = data.role || "team_lead";
-  await assertLevel(role, data.levelId);
+
   await assertBranch(data.branchId);
   await assertTarget(data.targetId);
   await assertTeamLead(data.teamLeadId);
@@ -113,7 +96,6 @@ const createAgent = async (data, file) => {
       ...data,
       photo,
       role,
-      levelModel: levelModelFor(role),
     });
 
     return toAgentDto(agent);
@@ -136,16 +118,10 @@ const updateAgent = async (id, data, file) => {
 
   const role = data.role || agent.role;
 
-  if (data.role && data.role !== agent.role && data.levelId === undefined) {
-    data.levelId = null;
-  }
-
-  const levelId = data.levelId === undefined ? agent.levelId : data.levelId;
   const branchId = data.branchId === undefined ? agent.branchId : data.branchId;
   const targetId = data.targetId === undefined ? agent.targetId : data.targetId;
   const teamLeadId =
     data.teamLeadId === undefined ? agent.teamLeadId : data.teamLeadId;
-  await assertLevel(role, levelId);
   await assertBranch(branchId);
   await assertTarget(targetId);
   await assertTeamLead(teamLeadId);
@@ -153,7 +129,6 @@ const updateAgent = async (id, data, file) => {
   const photo = file ? await uploadToS3(file, "agents") : undefined;
 
   data.role = role;
-  data.levelModel = levelModelFor(role);
   if (photo) data.photo = photo;
 
   try {

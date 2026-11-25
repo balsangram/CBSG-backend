@@ -1,8 +1,6 @@
 import Agent from "../../model/agent.model.js";
 import Branch from "../../model/branches.model.js";
-import ExecutiveManagerLevel from "../../model/executiveManagerLevel.model.js";
 import Target from "../../model/target.model.js";
-import TeamLeadLevel from "../../model/teamLeadLevel.model.js";
 
 const findAll = () => Agent.find().sort({ createdAt: -1 });
 
@@ -34,13 +32,6 @@ const findBranch = (branchId) => Branch.findById(branchId);
 
 const findTarget = (targetId) => Target.findById(targetId);
 
-const findLevel = (role, levelId) => {
-  const LevelModel =
-    role === "executive_manager" ? ExecutiveManagerLevel : TeamLeadLevel;
-
-  return LevelModel.findById(levelId);
-};
-
 export {
   findAll,
   findById,
@@ -49,6 +40,5 @@ export {
   deleteById,
   adjustTotals,
   findBranch,
-  findLevel,
   findTarget,
 };

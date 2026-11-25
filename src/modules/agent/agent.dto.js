@@ -6,8 +6,6 @@ const toAgentDto = (agent) => ({
   phone: agent.phone,
   photo: agent.photo || null,
   role: agent.role,
-  levelId: agent.levelId || null,
-  levelModel: agent.levelModel || null,
   branchId: agent.branchId || null,
   targetId: agent.targetId || null,
   teamLeadId: agent.teamLeadId || null,

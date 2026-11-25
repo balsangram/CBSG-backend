@@ -63,8 +63,6 @@ router.use(authMiddleware, adminOnly);
  *               status:
  *                 type: string
  *                 enum: [active, inactive, blocked]
- *               levelId:
- *                 type: string
  *               branchId:
  *                 type: string
  *               targetId:
@@ -128,8 +126,6 @@ router.get("/", getAllAgents);
  *               status:
  *                 type: string
  *                 enum: [active, inactive, blocked]
- *               levelId:
- *                 type: string
  *               branchId:
  *                 type: string
  *               targetId:
