@@ -102,10 +102,15 @@ const customerVerifyOtp = async ({ phone, otp, id, fcmToken }) => {
 
   const session = await createSession(customer, "customer", fcmToken);
   const kyc = await findKycByUserId(customer._id);
+  const kycStatus = kyc?.status;
+  const status =
+    kycStatus === "VERIFIED" || kycStatus === "REJECTED" || kycStatus === "PENDING"
+      ? kycStatus
+      : "PENDING";
 
   return {
     ...session,
-    status: kyc?.status || "PENDING",
+    status,
   };
 };
 

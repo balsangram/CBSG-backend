@@ -8,9 +8,17 @@ const SECTIONS = {
   nominee: ["nomineeName", "nomineeRelation"],
 };
 
+const normalizeStatus = (status) => {
+  if (status === "VERIFIED" || status === "REJECTED" || status === "PENDING") {
+    return status;
+  }
+
+  return "PENDING";
+};
+
 const toSectionDto = (section, fields) => {
   const result = {
-    status: section?.status || "PENDING",
+    status: normalizeStatus(section?.status),
     rejectionReason: section?.rejectionReason || null,
   };
 
@@ -30,7 +38,7 @@ const toKycDto = (kyc) => {
   const data = {
     id: kyc._id,
     userId: kyc.userId,
-    status: kyc.status,
+    status: normalizeStatus(kyc.status),
     verifiedAt: kyc.verifiedAt || null,
     createdAt: kyc.createdAt,
     updatedAt: kyc.updatedAt,
