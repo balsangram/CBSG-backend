@@ -7,6 +7,7 @@ import {
   rejectSectionSchema,
 } from "../kyc/admin-kyc.validation.js";
 import {
+  approveAllSections,
   approveSection,
   getAllKycs,
   getKycByCustomer,
@@ -120,6 +121,27 @@ router.get("/:customerId", getKycByCustomer);
  *         description: Section approved
  */
 router.patch("/:customerId/sections/:section/approve", approveSection);
+
+/**
+ * @swagger
+ * /admin/kyc/{customerId}/approve-all:
+ *   post:
+ *     summary: Approve all reviewable KYC sections at once
+ *     description: Marks every non-final section VERIFIED in a single action and notifies the customer once. REJECTED sections are left untouched.
+ *     tags: [Admin KYC]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: customerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sections approved
+ */
+router.post("/:customerId/approve-all", approveAllSections);
 
 /**
  * @swagger

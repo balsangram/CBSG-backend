@@ -6,6 +6,7 @@ const toPlanDto = (plan) => ({
   payout: plan.payout,
   monthlyInterest: plan.monthlyInterest,
   monthlyInterestDate: plan.monthlyInterestDate || null,
+  preClosureRule: plan.preClosureRule || "",
   planRules: (plan.planRules || []).map((rule) => ({
     ruleName: rule.ruleName,
     description: rule.description,

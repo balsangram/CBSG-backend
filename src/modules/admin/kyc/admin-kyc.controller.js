@@ -1,6 +1,7 @@
 import asyncHandler from "../../../utils/asyncHandler.js";
 import apiResponse from "../../../utils/apiResponse.js";
 import {
+  approveAllSections as approveAllSectionsService,
   approveSection as approveSectionService,
   getAllKycs as getAllKycsService,
   getKycByCustomer as getKycByCustomerService,
@@ -37,6 +38,14 @@ const rejectSection = asyncHandler(async (req, res) => {
   return apiResponse(res, 200, "Section rejected successfully", data);
 });
 
+const approveAllSections = asyncHandler(async (req, res) => {
+  const data = await approveAllSectionsService(
+    req.params.customerId,
+    req.user.id
+  );
+  return apiResponse(res, 200, "KYC sections approved successfully", data);
+});
+
 const rejectAll = asyncHandler(async (req, res) => {
   const data = await rejectAllService(
     req.params.customerId,
@@ -47,6 +56,7 @@ const rejectAll = asyncHandler(async (req, res) => {
 });
 
 export {
+  approveAllSections,
   approveSection,
   getAllKycs,
   getKycByCustomer,

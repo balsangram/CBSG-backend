@@ -37,6 +37,11 @@ const getPlanById = async (id) => {
 };
 
 const createPlan = async (data) => {
+  const existing = await findAll();
+  if (existing.length > 0) {
+    throw httpError(409, "Only one plan can be created. Update the existing plan instead.");
+  }
+
   const plan = await create(data);
   return toPlanDto(plan);
 };

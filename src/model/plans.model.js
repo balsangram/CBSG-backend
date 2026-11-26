@@ -21,7 +21,7 @@ const planSchema = new mongoose.Schema(
     minimumInvestmentAmount: {
       type: Number,
       required: true,
-      min: 1,
+      min: 100,
     },
 
     // Interest payout frequency
@@ -35,6 +35,13 @@ const planSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+
+    // Pre-closure rule text shown to customers
+    preClosureRule: {
+      type: String,
+      trim: true,
+      default: "",
     },
 
     // Monthly interest credit date

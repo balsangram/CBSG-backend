@@ -39,6 +39,8 @@ const planRule = Joi.object({
 
 const planRules = Joi.array().items(planRule).default([]);
 
+const preClosureRule = Joi.string().trim().max(1000).allow("");
+
 const isActive = Joi.boolean();
 
 const status = Joi.string().valid("DRAFT", "PUBLISHED").messages({
@@ -53,6 +55,7 @@ export const createPlanSchema = Joi.object({
   monthlyInterest,
   monthlyInterestDate,
   planRules,
+  preClosureRule,
   isActive,
   status,
 });
@@ -65,6 +68,7 @@ export const updatePlanSchema = Joi.object({
   monthlyInterest: monthlyInterest.optional(),
   monthlyInterestDate,
   planRules,
+  preClosureRule,
   isActive,
   status,
 }).min(1).messages({
