@@ -11,8 +11,6 @@ const toPlanDto = (plan) => ({
     ruleName: rule.ruleName,
     description: rule.description,
   })),
-  isActive: plan.isActive,
-  status: plan.status,
   createdAt: plan.createdAt,
   updatedAt: plan.updatedAt,
 });

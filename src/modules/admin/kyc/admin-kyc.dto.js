@@ -43,6 +43,19 @@ const toCustomerDto = (customer) => {
     email: customer.email || null,
     phone: customer.phone || null,
     photo: customer.photo || null,
+    fathersName: customer.fathersName || null,
+    dob: customer.dob || null,
+    address: customer.address || null,
+    pinCode: customer.pinCode || null,
+    aadhar: customer.aadhar || null,
+    aadharDocument: customer.aadharDocument || null,
+    pan: customer.pan || null,
+    panDocument: customer.panDocument || null,
+    bankName: customer.bankName || null,
+    accountNumber: customer.accountNumber || null,
+    ifscCode: customer.ifscCode || null,
+    nominee: customer.nominee || null,
+    nomineeRelation: customer.nomineeRelation || null,
   };
 };
 

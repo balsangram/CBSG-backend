@@ -66,26 +66,11 @@ const planSchema = new mongoose.Schema(
         },
       },
     ],
-
-    status: {
-      type: String,
-      enum: ["DRAFT", "PUBLISHED"],
-      default: "DRAFT",
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
   },
   {
     timestamps: true,
   }
 );
-
-planSchema.pre("validate", function () {
-  this.isActive = this.status === "PUBLISHED";
-});
 
 const Plan = mongoose.model("Plan", planSchema);
 

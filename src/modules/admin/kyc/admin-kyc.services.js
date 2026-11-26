@@ -33,7 +33,8 @@ const assertSection = (section) => {
   }
 };
 
-const CUSTOMER_POPULATE = "name email phone photo fcmToken";
+const CUSTOMER_POPULATE =
+  "name email phone photo fathersName dob address pinCode aadhar aadharDocument pan panDocument bankName accountNumber ifscCode nominee nomineeRelation fcmToken";
 
 // Notify the customer (in-app notification + FCM push). Failures are logged
 // but never block the KYC review action.
@@ -115,10 +116,7 @@ const getAllKycs = async (query) => {
 const getKycByCustomer = async (customerId) => {
   assertCustomerId(customerId);
 
-  const kyc = await findKycByUserId(customerId).populate(
-    "userId",
-    "name phone email photo"
-  );
+  const kyc = await findKycByUserId(customerId).populate("userId", CUSTOMER_POPULATE);
 
   if (!kyc) {
     throw httpError(404, "KYC not found for this customer");
@@ -142,7 +140,7 @@ const applyReview = async (kyc, adminId, changes) => {
     verifiedBy: adminId,
     verifiedAt: status === "VERIFIED" ? new Date() : kyc.verifiedAt || null,
     rejectionReason: changes.rejectionReason ?? kyc.rejectionReason ?? null,
-  });
+  }).populate("userId", CUSTOMER_POPULATE);
 
   return toKycDto(updated);
 };
@@ -246,7 +244,7 @@ const rejectAll = async (customerId, reason, adminId) => {
     status: "REJECTED",
     verifiedBy: adminId,
     verifiedAt: kyc.verifiedAt || null,
-  });
+  }).populate("userId", CUSTOMER_POPULATE);
 
   await notifyCustomer(
     kyc,
@@ -306,7 +304,7 @@ const approveAllSections = async (customerId, adminId) => {
     status,
     verifiedBy: adminId,
     verifiedAt: status === "VERIFIED" ? new Date() : kyc.verifiedAt || null,
-  });
+  }).populate("userId", CUSTOMER_POPULATE);
 
   const allApproved = status === "VERIFIED";
   await notifyCustomer(

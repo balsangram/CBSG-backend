@@ -42,6 +42,9 @@ const createPlan = async (data) => {
     throw httpError(409, "Only one plan can be created. Update the existing plan instead.");
   }
 
+  delete data.isActive;
+  delete data.status;
+
   const plan = await create(data);
   return toPlanDto(plan);
 };
@@ -49,11 +52,8 @@ const createPlan = async (data) => {
 const updatePlan = async (id, data) => {
   assertId(id);
 
-  if (data.status !== undefined) {
-    data.isActive = data.status === "PUBLISHED";
-  } else if (data.isActive !== undefined) {
-    data.status = data.isActive ? "PUBLISHED" : "DRAFT";
-  }
+  delete data.isActive;
+  delete data.status;
 
   const plan = await updateById(id, data);
 

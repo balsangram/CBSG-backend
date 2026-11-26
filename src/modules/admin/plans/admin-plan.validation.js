@@ -41,12 +41,6 @@ const planRules = Joi.array().items(planRule).default([]);
 
 const preClosureRule = Joi.string().trim().max(1000).allow("");
 
-const isActive = Joi.boolean();
-
-const status = Joi.string().valid("DRAFT", "PUBLISHED").messages({
-  "any.only": "Status must be DRAFT or PUBLISHED",
-});
-
 export const createPlanSchema = Joi.object({
   schemeName,
   planType,
@@ -56,8 +50,6 @@ export const createPlanSchema = Joi.object({
   monthlyInterestDate,
   planRules,
   preClosureRule,
-  isActive,
-  status,
 });
 
 export const updatePlanSchema = Joi.object({
@@ -69,8 +61,6 @@ export const updatePlanSchema = Joi.object({
   monthlyInterestDate,
   planRules,
   preClosureRule,
-  isActive,
-  status,
 }).min(1).messages({
   "object.min": "At least one field is required",
 });

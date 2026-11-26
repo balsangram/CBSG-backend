@@ -27,7 +27,7 @@ router.use(authMiddleware, adminOnly);
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: All plans, active and inactive
+ *         description: All plans
  *   post:
  *     summary: Create a plan
  *     tags: [Admin Plans]
@@ -63,11 +63,6 @@ router.use(authMiddleware, adminOnly);
  *                       type: string
  *                     description:
  *                       type: string
- *               isActive:
- *                 type: boolean
- *               status:
- *                 type: string
- *                 enum: [DRAFT, PUBLISHED]
  *     responses:
  *       201:
  *         description: Plan created
@@ -134,11 +129,6 @@ router.post("/", validateMiddleware(createPlanSchema), createPlan);
  *                       type: string
  *                     description:
  *                       type: string
- *               isActive:
- *                 type: boolean
- *               status:
- *                 type: string
- *                 enum: [DRAFT, PUBLISHED]
  *     responses:
  *       200:
  *         description: Plan updated
