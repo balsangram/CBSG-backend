@@ -2,6 +2,8 @@ import Customer from "../../../../model/customer.model.js";
 import Interest from "../../../../model/Interest.model.js";
 import KYC from "../../../../model/kyc.model.js";
 import OTP from "../../../../model/otp.model.js";
+import Agent from "../../../../model/agent.model.js";
+import Branch from "../../../../model/branches.model.js";
 
 const agentPopulate = {
   path: "agentId",
@@ -9,8 +11,33 @@ const agentPopulate = {
   populate: { path: "branchId", select: "name city" },
 };
 
-const findAll = () => {
-  return Customer.find().sort({ createdAt: -1 }).populate(agentPopulate);
+const findAll = async ({ page = 1, limit = 10, search, branch } = {}) => {
+  const filter = {};
+
+  if (search) {
+    const rx = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    filter.$or = [{ name: rx }, { phone: rx }, { email: rx }];
+  }
+
+  if (branch && branch !== "All branches") {
+    const branchDocs = await Branch.find({
+      $or: [{ name: branch }, { city: branch }],
+    }).select("_id");
+    const branchIds = branchDocs.map((b) => b._id);
+    const agents = await Agent.find({ branchId: { $in: branchIds } }).select("_id");
+    filter.agentId = { $in: agents.map((a) => a._id) };
+  }
+
+  const [customers, total] = await Promise.all([
+    Customer.find(filter)
+      .sort({ createdAt: -1 })
+      .populate(agentPopulate)
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Customer.countDocuments(filter),
+  ]);
+
+  return { customers, total };
 };
 
 const findById = (id) => Customer.findById(id).populate(agentPopulate);

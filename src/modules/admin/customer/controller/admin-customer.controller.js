@@ -9,7 +9,7 @@ import {
 } from "../services/admin-customer.services.js";
 
 const getCustomers = asyncHandler(async (req, res) => {
-  const data = await getCustomersService();
+  const data = await getCustomersService(req.query);
   return apiResponse(res, 200, "Customers fetched successfully", data);
 });
 

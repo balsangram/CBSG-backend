@@ -87,10 +87,35 @@ const blankToNull = (data) => {
   });
 };
 
-const getCustomers = async () => {
-  const customers = await findAll();
+const normalizeQuery = (query = {}) => {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(query.limit, 10) || 10));
+  const search =
+    typeof query.search === "string" && query.search.trim()
+      ? query.search.trim()
+      : undefined;
+  const branch =
+    typeof query.branch === "string" && query.branch.trim()
+      ? query.branch.trim()
+      : undefined;
+  return { page, limit, search, branch };
+};
+
+const getCustomers = async (query) => {
+  const { page, limit, search, branch } = normalizeQuery(query);
+  const { customers, total } = await findAll({ page, limit, search, branch });
   const kycByCustomerId = await findKycStatuses(customers.map((customer) => customer._id));
-  return toAdminCustomerListDto(customers, kycByCustomerId);
+
+  return {
+    customers: toAdminCustomerListDto(customers, kycByCustomerId),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    meta: { total },
+  };
 };
 
 const getCustomerById = async (id) => {
