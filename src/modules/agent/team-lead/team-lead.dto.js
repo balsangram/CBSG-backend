@@ -1,18 +1,3 @@
-const toLevelDto = (target) => {
-  if (!target?._id) return null;
-
-  return {
-    id: target._id,
-    name: target.name,
-    amount: target.amount,
-    customerCount: target.customer,
-    managerCount: target.managerCount ?? null,
-    prize: target.prize || null,
-    levelNo: target.levelNo || null,
-    status: target.isActive === false ? "inactive" : "active",
-  };
-};
-
 const toTargetDto = (target) => {
   if (!target?._id) return null;
 
@@ -43,9 +28,9 @@ const toDashboardDto = (agent, target, summary, today) => ({
   employeeId: agent.employeeId || null,
   totalSaving: summary.totalSaving || 0,
   executive: summary.executive || 0,
+  totalManager: summary.executive || 0,
   customer: summary.customer || 0,
   incentive: summary.incentive || 0,
-  level: toLevelDto(target),
   target: toTargetDto(target),
   todaySaving: {
     amount: today.amount || 0,
@@ -132,6 +117,8 @@ const toTopTeamLeadDto = (agent, rank, isMyRank = false) => ({
 const toTargetPageDto = ({ totals, levels, mine, top5, myRank, agentId }) => ({
   totalCustomer: totals.totalCustomer || 0,
   totalSaving: totals.totalSaving || 0,
+  executive: totals.executive || 0,
+  totalManager: totals.executive || 0,
   level: (levels || []).map((target) => toTeamLeadLevelDto(target, mine)),
   top5: (top5 || []).map((entry) =>
     toTopTeamLeadDto(

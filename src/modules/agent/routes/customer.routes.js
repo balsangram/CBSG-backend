@@ -11,6 +11,7 @@ import {
   deleteCustomer,
   getCustomerById,
   getCustomers,
+  getCustomersWithManager,
   updateCustomer,
 } from "../../customer/customer.controller.js";
 
@@ -163,6 +164,82 @@ router.use(authMiddleware, agentOnly);
  *         description: Customer created
  */
 router.get("/", getCustomers);
+
+/**
+ * @swagger
+ * /agent/customers/with-manager:
+ *   get:
+ *     summary: Team lead managers with customers
+ *     description: Team lead only. Returns managers first (each with up to 5 customers), then the team lead's own customers last with pagination and optional search by name, phone, or email.
+ *     tags: [Customers]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search own customers by name, phone, or email
+ *     responses:
+ *       200:
+ *         description: Managers with customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 success: true
+ *                 message: Managers with customers fetched successfully
+ *                 data:
+ *                   customerCount: 42
+ *                   managerCount: 3
+ *                   managers:
+ *                     - id: 6741a0c2e1b2c3d4e5f60711
+ *                       name: Ramesh Manager
+ *                       photo: null
+ *                       phone: "9876543210"
+ *                       employeeId: EM0001
+ *                       customerCount: 15
+ *                       totalSaving: 50000
+ *                       customers:
+ *                         - id: 6741a0c2e1b2c3d4e5f60710
+ *                           name: Asha Patel
+ *                           photo: null
+ *                           phone: "9876543211"
+ *                           joiningDate: 2026-01-15T00:00:00.000Z
+ *                           totalSaving: 7130
+ *                   myCustomerCount: 12
+ *                   myCustomers:
+ *                     - id: 6741a0c2e1b2c3d4e5f60709
+ *                       name: Own Customer
+ *                       photo: null
+ *                       phone: "9876543200"
+ *                       joiningDate: 2026-01-10T00:00:00.000Z
+ *                       totalSaving: 2000
+ *                   search: null
+ *                   pagination:
+ *                     page: 1
+ *                     limit: 10
+ *                     total: 12
+ *                     totalPages: 2
+ *       403:
+ *         description: Team lead access required
+ */
+router.get("/with-manager", getCustomersWithManager);
+
 /**
  * @swagger
  * /agent/customers/{id}:

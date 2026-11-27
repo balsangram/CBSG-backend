@@ -87,4 +87,25 @@ const toCustomerPageDto = (customers, balances, pagination, summary = {}) => ({
   pagination,
 });
 
-export { toCustomerDetailDto, toCustomerDto, toCustomerListDto, toCustomerPageDto };
+const toCustomersWithManagerDto = (data) => ({
+  customerCount: data.customerCount || 0,
+  managerCount: data.managerCount || 0,
+  managers: data.managers || [],
+  myCustomerCount: data.myCustomerCount || 0,
+  myCustomers: data.myCustomers || [],
+  search: data.search || null,
+  pagination: data.pagination || {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
+});
+
+export {
+  toCustomerDetailDto,
+  toCustomerDto,
+  toCustomerListDto,
+  toCustomerPageDto,
+  toCustomersWithManagerDto,
+};

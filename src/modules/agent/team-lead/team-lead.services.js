@@ -184,12 +184,14 @@ const getBook = async (agentId, query) => {
 const getTarget = async (agentId) => {
   const agent = await loadTeamLead(agentId);
 
-  const [totalCustomer, totalSaving, levels, teamLeads] = await Promise.all([
-    countNetworkCustomers(agentId),
-    sumNetworkSavings(agentId),
-    findTeamLeadTargets(),
-    findRankedTeamLeads(),
-  ]);
+  const [totalCustomer, totalSaving, executive, levels, teamLeads] =
+    await Promise.all([
+      countNetworkCustomers(agentId),
+      sumNetworkSavings(agentId),
+      countManagersUnder(agentId),
+      findTeamLeadTargets(),
+      findRankedTeamLeads(),
+    ]);
 
   const mine = resolveMineLevel(agent, levels, totalCustomer, totalSaving);
   const selfId = String(agent._id);
@@ -202,7 +204,7 @@ const getTarget = async (agentId) => {
   const inTop5 = Boolean(self && self.rank <= 5);
 
   return toTargetPageDto({
-    totals: { totalCustomer, totalSaving },
+    totals: { totalCustomer, totalSaving, executive },
     levels,
     mine,
     top5,

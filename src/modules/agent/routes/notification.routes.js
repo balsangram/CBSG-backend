@@ -19,7 +19,7 @@ router.use(authMiddleware, agentOnly);
 
 /**
  * @swagger
- * /agent/notifications:
+ * /agent/notification:
  *   get:
  *     summary: List notifications for the logged-in agent
  *     description: Uses the role on the access token. executive_manager receives MANAGER notifications. team_lead receives TEAM_LEAD notifications. 15 per page, newest first.

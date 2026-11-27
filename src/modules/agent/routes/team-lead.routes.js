@@ -50,17 +50,9 @@ router.use(authMiddleware, agentOnly);
  *                   employeeId: TL0001
  *                   totalSaving: 450000
  *                   executive: 8
+ *                   totalManager: 8
  *                   customer: 120
  *                   incentive: 25000
- *                   level:
- *                     id: 6741a0c2e1b2c3d4e5f60701
- *                     name: Level 2
- *                     amount: 100000
- *                     customerCount: 25
- *                     managerCount: 5
- *                     prize: Scooty
- *                     levelNo: L2
- *                     status: active
  *                   todaySaving:
  *                     amount: 1500
  *                     customerCount: 2

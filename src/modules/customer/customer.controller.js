@@ -5,12 +5,23 @@ import {
   deleteCustomer as deleteCustomerService,
   getCustomerById as getCustomerByIdService,
   getCustomers as getCustomersService,
+  getCustomersWithManager as getCustomersWithManagerService,
   updateCustomer as updateCustomerService,
 } from "./customer.services.js";
 
 const getCustomers = asyncHandler(async (req, res) => {
   const data = await getCustomersService(req.user.id, req.query);
   return apiResponse(res, 200, "Customers fetched successfully", data);
+});
+
+const getCustomersWithManager = asyncHandler(async (req, res) => {
+  const data = await getCustomersWithManagerService(req.user.id, req.query);
+  return apiResponse(
+    res,
+    200,
+    "Managers with customers fetched successfully",
+    data
+  );
 });
 
 const getCustomerById = asyncHandler(async (req, res) => {
@@ -44,6 +55,7 @@ const deleteCustomer = asyncHandler(async (req, res) => {
 
 export {
   getCustomers,
+  getCustomersWithManager,
   getCustomerById,
   createCustomer,
   updateCustomer,

@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 import { deleteFromS3, uploadToS3 } from "../../utils/s3.js";
-import { toCustomerDetailDto, toCustomerDto, toCustomerPageDto } from "./customer.dto.js";
+import {
+  toCustomerDetailDto,
+  toCustomerDto,
+  toCustomerPageDto,
+  toCustomersWithManagerDto,
+} from "./customer.dto.js";
 import { applyBankFields } from "./bank/customer-bank.dto.js";
 import {
   adjustTotals,
@@ -10,6 +15,7 @@ import {
   create,
   deleteById,
   findById,
+  findManagersWithCustomers,
   findPage,
   findRecentSavings,
   sumAgentSavings,
@@ -295,8 +301,30 @@ const deleteCustomer = async (agentId, id) => {
   return toCustomerDto(deleted);
 };
 
+const getCustomersWithManager = async (agentId, query = {}) => {
+  const agent = await findAgentById(agentId);
+
+  if (!agent) {
+    throw httpError(401, "Invalid agent session");
+  }
+
+  if (agent.role !== "team_lead") {
+    throw httpError(403, "Team lead access required");
+  }
+
+  if (agent.status !== "active") {
+    throw httpError(403, "Account is not active");
+  }
+
+  const { page, limit } = pageFrom(query);
+  const search = String(query.search || "").trim();
+  const data = await findManagersWithCustomers(agentId, page, limit, search);
+  return toCustomersWithManagerDto(data);
+};
+
 export {
   getCustomers,
+  getCustomersWithManager,
   getCustomerById,
   createCustomer,
   updateCustomer,
