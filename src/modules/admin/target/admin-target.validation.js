@@ -18,9 +18,10 @@ const customer = Joi.number().integer().min(0).required().messages({
   "number.integer": "Customer must be a whole number",
 });
 
-const prize = Joi.string().trim().min(1).max(40).required().messages({
+const prize = Joi.string().trim().min(1).max(200).required().messages({
   "any.required": "Prize is required",
   "string.min": "Prize is required",
+  "string.max": "Prize must be at most 200 characters",
 });
 
 const levelNo = Joi.string()
@@ -43,6 +44,12 @@ const role = Joi.string()
 
 const isActive = Joi.boolean();
 
+const managerCount = Joi.number().integer().min(0).messages({
+  "any.required": "Manager count is required for TEAM_LEAD",
+  "number.min": "Manager count cannot be negative",
+  "number.integer": "Manager count must be a whole number",
+});
+
 export const createTargetSchema = Joi.object({
   name,
   amount,
@@ -50,6 +57,11 @@ export const createTargetSchema = Joi.object({
   prize,
   levelNo,
   role,
+  managerCount: managerCount.when("role", {
+    is: "TEAM_LEAD",
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
   isActive,
 });
 
@@ -60,6 +72,15 @@ export const updateTargetSchema = Joi.object({
   prize: prize.optional(),
   levelNo: levelNo.optional(),
   role: role.optional(),
+  managerCount: managerCount.when("role", {
+    is: "TEAM_LEAD",
+    then: Joi.required(),
+    otherwise: Joi.when("role", {
+      is: "EXECUTIVE_MANAGER",
+      then: Joi.forbidden(),
+      otherwise: Joi.optional(),
+    }),
+  }),
   isActive,
 })
   .min(1)

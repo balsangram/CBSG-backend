@@ -61,6 +61,30 @@ const sumSavingsByCustomerIds = async (customerIds) => {
   return new Map(rows.map((row) => [row._id.toString(), row.total]));
 };
 
+const sumAgentSavings = async (agentId) => {
+  const [row] = await Transaction.aggregate([
+    {
+      $lookup: {
+        from: "customers",
+        localField: "userId",
+        foreignField: "_id",
+        as: "customer",
+      },
+    },
+    { $unwind: "$customer" },
+    {
+      $match: {
+        "customer.agentId": new mongoose.Types.ObjectId(agentId),
+        type: "SAVING",
+        status: { $in: SAVING_STATUSES },
+      },
+    },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+
+  return row?.total || 0;
+};
+
 const findRecentSavings = (customerId, page, limit) => {
   const skip = (page - 1) * limit;
   const filter = {
@@ -87,5 +111,6 @@ export {
   deleteById,
   sumSavings,
   sumSavingsByCustomerIds,
+  sumAgentSavings,
   findRecentSavings,
 };

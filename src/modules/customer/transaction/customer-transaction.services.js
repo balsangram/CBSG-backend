@@ -80,7 +80,7 @@ const getDashboard = async (customerId) => {
 
 const sendAmount = async (
   customerId,
-  { amount, type = "SAVING", paymentType = "BANK" }
+  { amount, type = "SAVING", paymentType = "UPI" }
 ) => {
   assertCustomerId(customerId);
 

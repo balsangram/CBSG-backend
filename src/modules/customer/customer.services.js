@@ -12,6 +12,7 @@ import {
   findById,
   findPage,
   findRecentSavings,
+  sumAgentSavings,
   sumSavings,
   sumSavingsByCustomerIds,
   updateById,
@@ -104,18 +105,39 @@ const assertOwnCustomer = (customer, agentId) => {
 const getCustomers = async (agentId, query) => {
   assertAgentSession(agentId);
 
+  const agent = await findAgentById(agentId);
+
+  if (!agent) {
+    throw httpError(401, "Invalid agent session");
+  }
+
   const { page, limit } = pageFrom(query);
-  const [customers, total] = await findPage(agentId, page, limit);
+  const [[customers, total], totalSaving, teamLead] = await Promise.all([
+    findPage(agentId, page, limit),
+    sumAgentSavings(agentId),
+    agent.teamLeadId ? findAgentById(agent.teamLeadId) : Promise.resolve(null),
+  ]);
   const balances = await sumSavingsByCustomerIds(
     customers.map((customer) => customer._id)
   );
 
-  return toCustomerPageDto(customers, balances, {
-    page,
-    limit,
-    total,
-    totalPages: total === 0 ? 0 : Math.ceil(total / limit),
-  });
+  return toCustomerPageDto(
+    customers,
+    balances,
+    {
+      page,
+      limit,
+      total,
+      totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+    },
+    {
+      name: agent.name,
+      photo: agent.photo,
+      teamLead,
+      customerCount: total,
+      totalSaving,
+    }
+  );
 };
 
 const getCustomerById = async (agentId, id, query = {}) => {

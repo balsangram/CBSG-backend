@@ -8,7 +8,7 @@ const sendAmountSchema = Joi.object({
   }),
   paymentType: Joi.string()
     .valid("UPI", "BANK", "CARD", "NETBANKING")
-    .default("BANK"),
+    .default("UPI"),
 });
 
 export { sendAmountSchema };

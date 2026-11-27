@@ -5,26 +5,38 @@ import {
   getDashboard as getDashboardService,
   getIncentive as getIncentiveService,
   getProfile as getProfileService,
+  getTarget as getTargetService,
 } from "./manager.services.js";
 
-const getDashboard = asyncHandler(async (req, res) => {
+const getManagerDashboard = asyncHandler(async (req, res) => {
   const data = await getDashboardService(req.user.id);
   return apiResponse(res, 200, "Dashboard fetched successfully", data);
 });
 
-const getIncentive = asyncHandler(async (req, res) => {
+const getManagerIncentive = asyncHandler(async (req, res) => {
   const data = await getIncentiveService(req.user.id);
   return apiResponse(res, 200, "Incentive fetched successfully", data);
 });
 
-const getProfile = asyncHandler(async (req, res) => {
+const getManagerProfile = asyncHandler(async (req, res) => {
   const data = await getProfileService(req.user.id);
   return apiResponse(res, 200, "Profile fetched successfully", data);
 });
 
-const getBook = asyncHandler(async (req, res) => {
+const getManagerBook = asyncHandler(async (req, res) => {
   const data = await getBookService(req.user.id, req.query);
   return apiResponse(res, 200, "Book fetched successfully", data);
 });
 
-export { getBook, getDashboard, getIncentive, getProfile };
+const getManagerTarget = asyncHandler(async (req, res) => {
+  const data = await getTargetService(req.user.id);
+  return apiResponse(res, 200, "Target fetched successfully", data);
+});
+
+export {
+  getManagerBook,
+  getManagerDashboard,
+  getManagerIncentive,
+  getManagerProfile,
+  getManagerTarget,
+};

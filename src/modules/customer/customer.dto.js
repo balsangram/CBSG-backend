@@ -66,7 +66,21 @@ const toCustomerListDto = (customer, balance = 0) => ({
   balance,
 });
 
-const toCustomerPageDto = (customers, balances, pagination) => ({
+const toTeamLeadDto = (teamLead) => {
+  if (!teamLead?._id) return null;
+
+  return {
+    name: teamLead.name || null,
+    photo: teamLead.photo || null,
+  };
+};
+
+const toCustomerPageDto = (customers, balances, pagination, summary = {}) => ({
+  name: summary.name || null,
+  photo: summary.photo || null,
+  teamLead: toTeamLeadDto(summary.teamLead),
+  customerCount: summary.customerCount || 0,
+  totalSaving: summary.totalSaving || 0,
   customers: customers.map((customer) =>
     toCustomerListDto(customer, balances.get(customer._id.toString()) || 0)
   ),

@@ -52,7 +52,7 @@ router.use(authMiddleware, agentOnly);
  * /agent/customers:
  *   get:
  *     summary: List customers
- *     description: Returns only customers created by the logged-in agent, newest first. Each customer includes totalDays from joining date through today, and balance from saving transactions only. page defaults to 1 and limit defaults to 10, with a maximum of 50.
+ *     description: Returns only customers created by the logged-in agent, newest first. Also returns the agent's name and photo, team lead name and photo, customerCount, and totalSaving across all their customers. Each customer includes totalDays and balance. page defaults to 1 and limit defaults to 10, with a maximum of 50.
  *     tags: [Customers]
  *     security:
  *       - BearerAuth: []
@@ -81,6 +81,13 @@ router.use(authMiddleware, agentOnly);
  *                 success: true
  *                 message: Customers fetched successfully
  *                 data:
+ *                   name: Ramesh Manager
+ *                   photo: https://cdn.example.com/agents/ramesh.jpg
+ *                   teamLead:
+ *                     name: Suresh Team Lead
+ *                     photo: https://cdn.example.com/agents/suresh.jpg
+ *                   customerCount: 24
+ *                   totalSaving: 150000
  *                   customers:
  *                     - id: 6741a0c2e1b2c3d4e5f60710
  *                       name: Asha Patel

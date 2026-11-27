@@ -22,6 +22,8 @@ const findAll = async ({ page = 1, limit = 10, search, role, status, sort } = {}
   return { targets, total };
 };
 
+const findById = (id) => Target.findById(id);
+
 const create = (data) => Target.create(data);
 
 const updateById = (id, data) => {
@@ -33,4 +35,4 @@ const updateById = (id, data) => {
 
 const deleteById = (id) => Target.findByIdAndDelete(id);
 
-export { findAll, create, updateById, deleteById };
+export { findAll, findById, create, updateById, deleteById };

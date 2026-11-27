@@ -52,9 +52,12 @@ router.use(authMiddleware, adminOnly);
  *               levelNo:
  *                 type: string
  *                 example: L1
+ *               managerCount:
+ *                 type: integer
+ *                 description: Required only when role is TEAM_LEAD
  *               role:
  *                 type: string
- *                 enum: [EXECUTIVE_MANAGER, TEAM_LEAD, MANAGER]
+ *                 enum: [EXECUTIVE_MANAGER, TEAM_LEAD]
  *               isActive:
  *                 type: boolean
  *     responses:
@@ -96,9 +99,12 @@ router.post("/", validateMiddleware(createTargetSchema), createTarget);
  *               levelNo:
  *                 type: string
  *                 example: L1
+ *               managerCount:
+ *                 type: integer
+ *                 description: Required only when role is TEAM_LEAD
  *               role:
  *                 type: string
- *                 enum: [EXECUTIVE_MANAGER, TEAM_LEAD, MANAGER]
+ *                 enum: [EXECUTIVE_MANAGER, TEAM_LEAD]
  *               isActive:
  *                 type: boolean
  *     responses:

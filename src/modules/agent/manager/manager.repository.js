@@ -4,6 +4,7 @@ import Customer from "../../../model/customer.model.js";
 import Incentive from "../../../model/incentive.model.js";
 import Target from "../../../model/target.model.js";
 import Transaction from "../../../model/transaction.model.js";
+import Withdrawal from "../../../model/withdrawal.model.js";
 
 const TODAY_LIMIT = 4;
 const COUNTED_STATUSES = ["PENDING", "PROCESSING", "COMPLETED"];
@@ -50,10 +51,39 @@ const findActiveTarget = (role) => {
   });
 };
 
+const findManagerTargets = () => {
+  return Target.find({
+    role: { $in: TARGET_ROLES.executive_manager },
+    isActive: true,
+  }).sort({ levelNo: 1, createdAt: 1 });
+};
+
+const findRankedManagers = () => {
+  return Agent.find({
+    role: "executive_manager",
+    status: "active",
+  })
+    .select("name photo employeeId totalCustomer totalSaving branchId targetId")
+    .populate("branchId", "name city")
+    .populate("targetId", "name levelNo amount customer prize");
+};
+
 const sumIncentives = (agentId) => {
   return Incentive.aggregate([
     { $match: { agentId: new mongoose.Types.ObjectId(agentId) } },
     { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+};
+
+const summarizeWithdrawals = (agentId) => {
+  return Withdrawal.aggregate([
+    { $match: { agentId: new mongoose.Types.ObjectId(agentId) } },
+    {
+      $group: {
+        _id: "$status",
+        total: { $sum: "$amount" },
+      },
+    },
   ]);
 };
 
@@ -202,6 +232,66 @@ const findRecentSavings = (agentId, page, limit) => {
   ]);
 };
 
+const summarizeAgentSavings = (agentId) => {
+  return Transaction.aggregate([
+    ...agentSavingMatch(agentId),
+    {
+      $group: {
+        _id: null,
+        totalSaving: { $sum: "$amount" },
+        customers: { $addToSet: "$customer._id" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalSaving: 1,
+        customerCount: { $size: "$customers" },
+      },
+    },
+  ]);
+};
+
+const findSavingCustomers = (agentId, page, limit) => {
+  const skip = (page - 1) * limit;
+  const { start } = istDayWindow();
+
+  return Transaction.aggregate([
+    ...agentSavingMatch(agentId, { createdAt: { $lt: start } }),
+    {
+      $group: {
+        _id: "$customer._id",
+        name: { $first: "$customer.name" },
+        photo: { $first: "$customer.photo" },
+        phone: { $first: "$customer.phone" },
+        totalSaving: { $sum: "$amount" },
+        lastPaidAt: { $max: "$createdAt" },
+      },
+    },
+    { $sort: { lastPaidAt: -1 } },
+    {
+      $facet: {
+        items: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              _id: 0,
+              id: "$_id",
+              name: 1,
+              photo: 1,
+              phone: 1,
+              totalSaving: 1,
+              lastPaidAt: 1,
+            },
+          },
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+  ]);
+};
+
 const countCustomers = (agentId) => {
   return Customer.countDocuments({ agentId });
 };
@@ -296,11 +386,16 @@ export {
   countCustomers,
   findActiveTarget,
   findAgent,
+  findManagerTargets,
   findRecentSavings,
+  findSavingCustomers,
   findTodayPayments,
   findTodayPayers,
+  findRankedManagers,
   sumIncentives,
+  summarizeAgentSavings,
   summarizeCustomers,
   summarizeIncentives,
   summarizeTodaySavings,
+  summarizeWithdrawals,
 };

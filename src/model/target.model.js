@@ -29,6 +29,14 @@ const targetSchema = new mongoose.Schema(
       uppercase: true,
       match: [/^L\d+$/, "Level number must look like L1 or L2"],
     },
+    managerCount: {
+      type: Number,
+      min: 0,
+      default: null,
+      required: function requiredManagerCount() {
+        return this.role === "TEAM_LEAD";
+      },
+    },
     role: {
       type: String,
       required: true,

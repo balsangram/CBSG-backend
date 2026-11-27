@@ -33,7 +33,7 @@ const router = express.Router();
  *               paymentType:
  *                 type: string
  *                 enum: [UPI, BANK, CARD, NETBANKING]
- *                 default: BANK
+ *                 default: UPI
  *     responses:
  *       201:
  *         description: Saving created
@@ -70,7 +70,7 @@ router.post("/saving", validateMiddleware(sendAmountSchema), sendAmountToAdmin);
  *               paymentType:
  *                 type: string
  *                 enum: [UPI, BANK, CARD, NETBANKING]
- *                 default: BANK
+ *                 default: UPI
  *     responses:
  *       201:
  *         description: Withdrawal created
