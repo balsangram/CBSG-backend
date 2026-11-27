@@ -25,7 +25,7 @@ app.use(rateLimitMiddleware);
 const health = (req, res) => {
   res.status(200).json({
     success: true,
-    message: "CBSG API is running",
+    message: "CBSG API is runnning",
     timestamp: new Date().toISOString(),
   });
 };
