@@ -6,7 +6,7 @@ const findAgentBank = (id) => Agent.findById(id).select(BANK_FIELDS);
 
 const updateAgentBank = (id, data) => {
   return Agent.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   }).select(BANK_FIELDS);
 };

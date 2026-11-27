@@ -8,7 +8,7 @@ const create = (data) => Plan.create(data);
 
 const updateById = (id, data) => {
   return Plan.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

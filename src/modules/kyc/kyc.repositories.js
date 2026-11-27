@@ -8,7 +8,7 @@ const createKyc = (data) => KYC.create(data);
 
 const updateKycById = (id, data) => {
   return KYC.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

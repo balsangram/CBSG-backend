@@ -8,7 +8,7 @@ const create = (data) => Branch.create(data);
 
 const updateById = (id, data) =>
   Branch.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 

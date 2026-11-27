@@ -10,7 +10,7 @@ const findProfileById = (id) => Customer.findById(id).select(PROFILE_SELECT);
 
 const updateProfileById = (id, data) => {
   return Customer.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   }).select(PROFILE_SELECT);
 };

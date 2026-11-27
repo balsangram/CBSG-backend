@@ -10,7 +10,7 @@ const create = (data) => Agent.create(data);
 
 const updateById = (id, data) => {
   return Agent.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

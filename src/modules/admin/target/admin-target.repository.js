@@ -28,7 +28,7 @@ const create = (data) => Target.create(data);
 
 const updateById = (id, data) => {
   return Target.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

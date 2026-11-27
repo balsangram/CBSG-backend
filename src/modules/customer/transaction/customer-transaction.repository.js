@@ -35,7 +35,7 @@ const updateCustomerSavings = async (id, savings) => {
       monthlySaving: savings.monthlySaving,
       totalSaving: savings.totalSaving,
     },
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   ).select("monthlySaving totalSaving");
 
   if (current?.agentId) {

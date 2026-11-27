@@ -21,7 +21,7 @@ const create = (data) => Customer.create(data);
 
 const updateById = (id, data) => {
   return Customer.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

@@ -23,7 +23,7 @@ const createNotification = (data) => Notification.create(data);
 
 const updateNotificationById = (id, data) => {
   return Notification.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 };

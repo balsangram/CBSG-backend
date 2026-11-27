@@ -158,7 +158,7 @@ const assignEmployeeId = async (agent) => {
             $or: [{ employeeId: null }, { employeeId: { $exists: false } }],
         },
         { $set: { employeeId } },
-        { new: true }
+        { returnDocument: 'after' }
     ).select("employeeId");
 
     if (updated?.employeeId) {

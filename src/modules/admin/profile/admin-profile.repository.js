@@ -7,7 +7,7 @@ const findProfileById = (id) => Admin.findById(id).select(PROFILE_SELECT);
 
 const updateProfileById = (id, data) => {
   return Admin.findByIdAndUpdate(id, data, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   }).select(PROFILE_SELECT);
 };
