@@ -8,6 +8,7 @@ import {
 import { SECTIONS, toKycDto } from "./customer-kyc.dto.js";
 
 const SECTION_KEYS = Object.keys(SECTIONS);
+const KYC_STATUSES = new Set(["PENDING", "VERIFIED", "REJECTED"]);
 
 const httpError = (statusCode, message) => {
   const error = new Error(message);
@@ -21,15 +22,26 @@ const assertCustomerId = (id) => {
   }
 };
 
+const normalizeStatus = (status) => {
+  if (KYC_STATUSES.has(status)) return status;
+  // Legacy values like UNDER_REVIEW (and anything else) map to PENDING
+  return "PENDING";
+};
+
 const plainSection = (section) => {
   if (!section) return {};
-  return typeof section.toObject === "function" ? section.toObject() : { ...section };
+  const raw =
+    typeof section.toObject === "function" ? section.toObject() : { ...section };
+  return {
+    ...raw,
+    status: normalizeStatus(raw.status),
+  };
 };
 
 const mergeSection = (current, incoming, fields) => {
   const existing = plainSection(current);
   const next = {
-    status: incoming.status ?? existing.status ?? "PENDING",
+    status: normalizeStatus(incoming.status ?? existing.status ?? "PENDING"),
     rejectionReason:
       incoming.rejectionReason === ""
         ? null
@@ -153,11 +165,12 @@ const reopenKycSections = async (customerId, sectionKeys) => {
 
   const status = statusFor(sections);
   const update = {
-    status,
+    status: normalizeStatus(status),
     verifiedAt: status === "VERIFIED" ? kyc.verifiedAt : null,
   };
 
-  for (const key of keys) {
+  // Write every section so legacy values like UNDER_REVIEW are normalized in DB
+  for (const key of SECTION_KEYS) {
     update[key] = sections[key];
   }
 

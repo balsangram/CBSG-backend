@@ -1,7 +1,9 @@
 import Joi from "joi";
 import { SECTIONS } from "./customer-kyc.dto.js";
 
-const sectionStatus = Joi.string().valid("PENDING", "VERIFIED", "REJECTED");
+const sectionStatus = Joi.string()
+  .valid("PENDING", "VERIFIED", "REJECTED", "UNDER_REVIEW")
+  .custom((value) => (value === "UNDER_REVIEW" ? "PENDING" : value));
 
 const sectionSchema = (fields) => {
   const shape = {
