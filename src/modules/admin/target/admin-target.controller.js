@@ -8,7 +8,7 @@ import {
 } from "./admin-target.services.js";
 
 const getTargets = asyncHandler(async (req, res) => {
-  const data = await getTargetsService();
+  const data = await getTargetsService(req.query);
   return apiResponse(res, 200, "Targets fetched successfully", data);
 });
 
